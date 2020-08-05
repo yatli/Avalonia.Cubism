@@ -1,5 +1,4 @@
-﻿using System;
-using MathNet.Numerics.LinearAlgebra.Single;
+﻿using MathNet.Numerics.LinearAlgebra.Single;
 
 namespace CubismFramework
 {

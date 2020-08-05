@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CubismFramework
+﻿namespace CubismFramework
 {
     /// <summary>
     /// 標準的なパーツID名を管理するクラス
