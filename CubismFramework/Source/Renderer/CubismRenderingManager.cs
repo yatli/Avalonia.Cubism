@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Drawing;
-using MathNet.Numerics.LinearAlgebra.Single;
+using osuTK;
 
 namespace CubismFramework
 {
@@ -126,21 +126,20 @@ namespace CubismFramework
                 float scale_y = 1.0f / inflated_bounds.Height;
 
                 // マスク生成時に使う行列を求める
-                // View to Layout(0～1) to Framebuffer(-1～1)
-                clipping_context.MatrixForMask = new DenseMatrix(4, 4, new float[]{
-                        2.0f * scale_x, 0.0f, 0.0f, 0.0f,
-                        0.0f, 2.0f * scale_y, 0.0f, 0.0f,
-                        0.0f, 0.0f, 1.0f, 0.0f,
-                        -2.0f * scale_x * inflated_bounds.X - 1.0f, -2.0f * scale_y * inflated_bounds.Y - 1.0f, 0.0f, 1.0f
-                    });
+                clipping_context.MatrixForMask = new Matrix4(
+                    2.0f * scale_x, 0.0f, 0.0f, 0.0f,
+                    0.0f, 2.0f * scale_y, 0.0f, 0.0f,
+                    0.0f, 0.0f, 1.0f, 0.0f,
+                    -2.0f * scale_x * inflated_bounds.X - 1.0f, -2.0f * scale_y * inflated_bounds.Y - 1.0f, 0.0f, 1.0f
+                );
 
                 // モデル描画時にモデルの座標からマスクの座標へ変換する行列を求める
-                clipping_context.MatrixForDraw = new DenseMatrix(4, 4, new float[]{
+                clipping_context.MatrixForDraw = new Matrix4(
                         scale_x, 0.0f, 0.0f, 0.0f,
                         0.0f, scale_y, 0.0f, 0.0f,
                         0.0f, 0.0f, 1.0f, 0.0f,
                         -scale_x * inflated_bounds.X, -scale_y * inflated_bounds.Y, 0.0f, 1.0f
-                    });
+                );
 
                 // マスクを描画する
                 Renderer.StartDrawingMask(clipping_context.Target);
@@ -160,7 +159,7 @@ namespace CubismFramework
         /// <summary>
         /// レンダラーでモデルを描画する。
         /// </summary>
-        public void Draw(Matrix mvp_matrix)
+        public void Draw(Matrix4 mvp_matrix)
         {
             try
             {
@@ -196,7 +195,7 @@ namespace CubismFramework
                     short[] index_buffer = drawable.IndexBuffer;
                     CubismClippingContext clipping_context = DrawableClippingContexts[drawable_index];
                     ICubismClippingMask clipping_mask = (clipping_context != null) ? clipping_context.Target : null;
-                    Matrix clipping_matrix = (clipping_context != null) ? clipping_context.MatrixForDraw : DenseMatrix.CreateIdentity(4);
+                    Matrix4 clipping_matrix = (clipping_context != null) ? clipping_context.MatrixForDraw : Matrix4.Identity;
                     Renderer.DrawMesh(texture, vertex_buffer, uv_buffer, index_buffer, clipping_mask, clipping_matrix, drawable.BlendMode, drawable.UseCulling, drawable.Opacity);
                 }
             }

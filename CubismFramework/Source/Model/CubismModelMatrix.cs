@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using MathNet.Numerics.LinearAlgebra.Single;
+using osuTK;
 
 namespace CubismFramework
 {
@@ -144,7 +144,6 @@ namespace CubismFramework
         private double Width = 0.0;
 
         private double Height = 0.0;
-
-        public Matrix Matrix = DenseMatrix.CreateIdentity(4);
+        public Matrix4 Matrix = Matrix4.Identity;
     }
 }

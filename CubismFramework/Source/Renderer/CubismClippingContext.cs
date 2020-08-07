@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using MathNet.Numerics.LinearAlgebra.Single;
+using osuTK;
 
 namespace CubismFramework
 {
@@ -44,12 +44,12 @@ namespace CubismFramework
         /// <summary>
         /// マスクの位置計算結果を保持する行列
         /// </summary>
-        public Matrix MatrixForMask = DenseMatrix.CreateIdentity(4);
+        public Matrix4 MatrixForMask = Matrix4.Identity;
 
         /// <summary>
         /// 描画オブジェクトの位置計算結果を保持する行列
         /// </summary>
-        public Matrix MatrixForDraw = DenseMatrix.CreateIdentity(4);
+        public Matrix4 MatrixForDraw = Matrix4.Identity;
 
         /// <summary>
         /// このマスクにクリップされる描画オブジェクトのリスト

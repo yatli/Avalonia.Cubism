@@ -59,17 +59,17 @@ namespace CubismFramework
         /// <summary>
         /// ブレンドモードを内部形式に変換する。
         /// </summary>
-        private static ICubismRenderer.BlendModeType ConvertBlendMode(CubismCore.ConstantDrawableFlags flags)
+        private static BlendModeType ConvertBlendMode(CubismCore.ConstantDrawableFlags flags)
         {
             if ((flags & CubismCore.ConstantDrawableFlags.BlendAdditive) != 0)
             {
-                return ICubismRenderer.BlendModeType.Add;
+                return BlendModeType.Add;
             }
             else if ((flags & CubismCore.ConstantDrawableFlags.BlendMultiplicative) != 0)
             {
-                return ICubismRenderer.BlendModeType.Multiply;
+                return BlendModeType.Multiply;
             }
-            return ICubismRenderer.BlendModeType.Normal;
+            return BlendModeType.Normal;
         }
         
         /// <summary>
@@ -120,7 +120,7 @@ namespace CubismFramework
         /// <summary>
         /// ブレンドモード
         /// </summary>
-        public ICubismRenderer.BlendModeType BlendMode { get; private set; } = ICubismRenderer.BlendModeType.Normal;
+        public BlendModeType BlendMode { get; private set; } = BlendModeType.Normal;
 
         /// <summary>
         /// 可視性

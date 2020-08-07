@@ -1,4 +1,4 @@
 ﻿namespace CubismFramework
 {
-    public abstract class ICubismClippingMask { }
+    public interface ICubismClippingMask { }
 }

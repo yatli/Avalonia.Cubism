@@ -1,4 +1,4 @@
 ﻿namespace CubismFramework
 {
-    public abstract class ICubismTexture { }
+    public interface ICubismTexture { }
 }
