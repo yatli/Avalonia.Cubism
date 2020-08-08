@@ -1,5 +1,5 @@
 using System;
-using osuTK.Graphics.ES30;
+using osuTK.Graphics.ES20;
 
 namespace CubismFramework
 {

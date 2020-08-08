@@ -147,7 +147,7 @@ namespace CubismFramework
             GL.BlendFuncSeparate(BlendingFactorSrc.Zero, BlendingFactorDest.OneMinusSrcColor, BlendingFactorSrc.Zero, BlendingFactorDest.OneMinusSrcAlpha);
         }
 
-        public void DrawMask(ICubismTexture itexture, float[] vertex_buffer, float[] uv_buffer, short[] index_buffer, ICubismClippingMask iclipping_mask, Matrix4 clipping_matrix, bool use_culling)
+        unsafe public void DrawMask(ICubismTexture itexture, float[] vertex_buffer, float[] uv_buffer, short[] index_buffer, ICubismClippingMask iclipping_mask, Matrix4 clipping_matrix, bool use_culling)
         {
             var texture = (CubismOpenTKTexture)itexture;
             var clipping_mask = (CubismOpenTKClippingMask)iclipping_mask;
@@ -161,23 +161,19 @@ namespace CubismFramework
             GL.Uniform1(shader.SamplerTexture0Location, 0);
 
             GL.EnableVertexAttribArray((uint)shader.AttributePositionLocation);
-            GCHandle pinned_vertex_buffer = GCHandle.Alloc(vertex_buffer, GCHandleType.Pinned);
-            GL.VertexAttribPointer((uint)shader.AttributePositionLocation, 2, VertexAttribPointerType.Float, false, sizeof(float) * 2, pinned_vertex_buffer.AddrOfPinnedObject());
+            fixed (float* ptr = vertex_buffer)
+                GL.VertexAttribPointer((uint)shader.AttributePositionLocation, 2, VertexAttribPointerType.Float, false, sizeof(float) * 2, (IntPtr)ptr);
 
             GL.EnableVertexAttribArray((uint)shader.AttributeTexCoordLocation);
-            GCHandle pinned_uv_buffer = GCHandle.Alloc(uv_buffer, GCHandleType.Pinned);
-            GL.VertexAttribPointer((uint)shader.AttributeTexCoordLocation, 2, VertexAttribPointerType.Float, false, sizeof(float) * 2, pinned_uv_buffer.AddrOfPinnedObject());
+            fixed (float* ptr = uv_buffer)
+                GL.VertexAttribPointer((uint)shader.AttributeTexCoordLocation, 2, VertexAttribPointerType.Float, false, sizeof(float) * 2, (IntPtr)ptr);
 
             GL.Uniform4(shader.UnifromChannelFlagLocation, 1.0f, 0.0f, 0.0f, 0.0f);
             GL.UniformMatrix4(shader.UniformClipMatrixLocation, false, ref clipping_matrix);
             GL.Uniform4(shader.UniformBaseColorLocation, -1.0f, -1.0f, 1.0f, 1.0f);
-            
-            GCHandle pinned_index_buffer = GCHandle.Alloc(index_buffer, GCHandleType.Pinned);
-            GL.DrawElements(PrimitiveType.Triangles, index_buffer.Length, DrawElementsType.UnsignedShort, pinned_index_buffer.AddrOfPinnedObject());
 
-            pinned_vertex_buffer.Free();
-            pinned_uv_buffer.Free();
-            pinned_index_buffer.Free();
+            fixed (short* ptr = index_buffer)
+                GL.DrawElements(PrimitiveType.Triangles, index_buffer.Length, DrawElementsType.UnsignedShort, (IntPtr)ptr);
         }
 
         public void EndDrawingMask(ICubismClippingMask iclipping_mask)
@@ -186,7 +182,7 @@ namespace CubismFramework
             State.RestoreViewport();
         }
 
-        public void DrawMesh(ICubismTexture itexture, float[] vertex_buffer, float[] uv_buffer, short[] index_buffer, ICubismClippingMask iclipping_mask, Matrix4 clipping_matrix, BlendModeType blend_mode, bool use_culling, double opacity)
+        unsafe public void DrawMesh(ICubismTexture itexture, float[] vertex_buffer, float[] uv_buffer, short[] index_buffer, ICubismClippingMask iclipping_mask, Matrix4 clipping_matrix, BlendModeType blend_mode, bool use_culling, double opacity)
         {
             var texture = (CubismOpenTKTexture)itexture;
             var clipping_mask = iclipping_mask as CubismOpenTKClippingMask;
@@ -198,15 +194,13 @@ namespace CubismFramework
             var shader = ShaderManager.ShaderForDrawMesh(use_clipping_mask, UsePremultipliedAlpha);
             GL.UseProgram(shader.ProgramId);
 
-            // 頂点バッファを設定する
             GL.EnableVertexAttribArray((uint)shader.AttributePositionLocation);
-            GCHandle pinned_vertex_buffer = GCHandle.Alloc(vertex_buffer, GCHandleType.Pinned);
-            GL.VertexAttribPointer((uint)shader.AttributePositionLocation, 2, VertexAttribPointerType.Float, false, sizeof(float) * 2, pinned_vertex_buffer.AddrOfPinnedObject());
+            fixed (float* ptr = vertex_buffer)
+                GL.VertexAttribPointer((uint)shader.AttributePositionLocation, 2, VertexAttribPointerType.Float, false, sizeof(float) * 2, (IntPtr)ptr);
 
-            // UVバッファを設定する
             GL.EnableVertexAttribArray((uint)shader.AttributeTexCoordLocation);
-            GCHandle pinned_uv_buffer = GCHandle.Alloc(uv_buffer, GCHandleType.Pinned);
-            GL.VertexAttribPointer((uint)shader.AttributeTexCoordLocation, 2, VertexAttribPointerType.Float, false, sizeof(float) * 2, pinned_uv_buffer.AddrOfPinnedObject());
+            fixed (float* ptr = uv_buffer)
+                GL.VertexAttribPointer((uint)shader.AttributeTexCoordLocation, 2, VertexAttribPointerType.Float, false, sizeof(float) * 2, (IntPtr)ptr);
 
             if (use_clipping_mask == true)
             {
@@ -241,12 +235,8 @@ namespace CubismFramework
             }
             GL.Uniform4(shader.UniformBaseColorLocation, color[0], color[1], color[2], color[3]);
 
-            GCHandle pinned_index_buffer = GCHandle.Alloc(index_buffer, GCHandleType.Pinned);
-            GL.DrawElements(PrimitiveType.Triangles, index_buffer.Length, DrawElementsType.UnsignedShort, pinned_index_buffer.AddrOfPinnedObject());
-
-            pinned_vertex_buffer.Free();
-            pinned_uv_buffer.Free();
-            pinned_index_buffer.Free();
+            fixed (short* ptr = index_buffer)
+                GL.DrawElements(PrimitiveType.Triangles, index_buffer.Length, DrawElementsType.UnsignedShort, (IntPtr)ptr);
         }
 
         public void EndDrawingModel()

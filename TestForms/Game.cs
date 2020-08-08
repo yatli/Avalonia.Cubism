@@ -1,6 +1,8 @@
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using CubismFramework;
 using osuTK;
 using osuTK.Graphics;
@@ -15,14 +17,33 @@ namespace TestForms
         CubismOpenTKRenderer Renderer;
         CubismMotionQueueEntry LastMotion;
         double elapsed;
+        private static DebugProc openGLDebugDelegate;
 
         public Game(int width, int height, string title)
             : base(width, height, GraphicsMode.Default, title)
-        {    
+        {
+            GL.Enable((EnableCap)All.DebugOutput);
+            GL.Enable((EnableCap)All.DebugOutputSynchronous);
+
+            openGLDebugDelegate = new DebugProc(openGLDebugCallback);
+
+            GL.DebugMessageCallback(openGLDebugDelegate, IntPtr.Zero);
+            GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DontCare, DebugSeverityControl.DontCare, 0, new int[0], true);
+ 
+            GL.DebugMessageInsert(DebugSourceExternal.DebugSourceApplication, DebugType.DebugTypeMarker, 0, DebugSeverity.DebugSeverityNotification, -1, "Debug output enabled");
+        }
+
+        private static void openGLDebugCallback(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
+        {
+            Debug.WriteLine(source == DebugSource.DebugSourceApplication ?
+                $"{Marshal.PtrToStringAnsi(message, length)}" :
+                $"{Marshal.PtrToStringAnsi(message, length)}\n\tid:{id} severity:{severity} type:{type} source:{source}\n");
         }
 
         protected override void OnLoad(EventArgs e)
         {
+            GL.ClearColor(0.0f, 0.5f, 0.5f, 1.0f);
+
             Asset = new CubismAsset(@"hiyori_free_t06.model3.json", (string file_path) =>
             {
                 string file_name = Path.GetFileNameWithoutExtension(file_path);
@@ -42,6 +63,8 @@ namespace TestForms
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+            base.OnRenderFrame(e);
+
             if ((LastMotion == null) || (LastMotion.Finished == true))
             {
                 var motion_group = Asset.MotionGroups[""];
@@ -51,16 +74,16 @@ namespace TestForms
             }
 
             Asset.Update(elapsed);
-
-            GL.ClearColor(0.0f, 0.5f, 0.5f, 1.0f);
+            
+            GL.Viewport(0, 0, ClientRectangle.Width, ClientRectangle.Height);
             GL.Clear(ClearBufferMask.ColorBufferBit);
-            GL.Viewport(0, 0, Width, Height);
+
             Matrix4 mvp_matrix = Matrix4.Identity;
             mvp_matrix[0, 0] = 2.0f;
             mvp_matrix[1, 1] = 2.0f * Width / Height;
             RenderingManager.Draw(mvp_matrix);
 
-            base.OnRenderFrame(e);
+            SwapBuffers();
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)

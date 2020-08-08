@@ -7,7 +7,7 @@ namespace TestForms
         [STAThread]
         static void Main()
         {
-            using (Game game = new Game(800, 600, "CubismFrameworkCS Test"))
+            using (Game game = new Game(400, 600, "CubismFrameworkCS Test"))
                 game.Run(60.0);
         }
     }
