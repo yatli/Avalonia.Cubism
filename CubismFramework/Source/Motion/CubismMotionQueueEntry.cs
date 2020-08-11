@@ -123,7 +123,7 @@ namespace CubismFramework
         /// 中断中、モーションの値はモデルに適用されない。
         /// </summary>
         /// <param name="enabled">trueなら一時中断する。falseなら一時中断を解除する。</param>
-        public void Suspened(bool enabled = true)
+        public void Suspend(bool enabled = true)
         {
             if (enabled == true)
             {
@@ -131,12 +131,12 @@ namespace CubismFramework
                 {
                     SystemWeight = 0.0;
                     SystemSpeed = 0.0;
-                    State = StateType.Suspended;
+                    State = StateType.Suspend;
                 }
             }
             else
             {
-                if (State == StateType.Suspended)
+                if (State == StateType.Suspend)
                 {
                     SystemWeight = 1.0;
                     SystemSpeed = 1.0;
@@ -150,7 +150,7 @@ namespace CubismFramework
         /// </summary>
         public void Resume()
         {
-            if ((State == StateType.Paused) || (State == StateType.Suspended))
+            if ((State == StateType.Paused) || (State == StateType.Suspend))
             {
                 SystemWeight = 1.0;
                 SystemSpeed = 1.0;
@@ -178,7 +178,7 @@ namespace CubismFramework
                     Finish();
                 }
             }
-            else if (State == StateType.Suspended)
+            else if (State == StateType.Suspend)
             {
                 Finish();
             }
@@ -230,7 +230,7 @@ namespace CubismFramework
         /// </summary>
         public bool Suspended
         {
-            get { return State == StateType.Suspended; }
+            get { return State == StateType.Suspend; }
         }
         
         /// <summary>
@@ -310,7 +310,7 @@ namespace CubismFramework
             /// <summary>
             /// モーションの時間は止まっていて、モーションの値はモデルに適用されない。
             /// </summary>
-            Suspended,
+            Suspend,
 
             /// <summary>
             /// モーションは強制終了中で、強制的なフェードアウトが進行している。
