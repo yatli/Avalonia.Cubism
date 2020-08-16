@@ -147,7 +147,7 @@ namespace CubismFramework
             GL.BlendFuncSeparate(BlendingFactorSrc.Zero, BlendingFactorDest.OneMinusSrcColor, BlendingFactorSrc.Zero, BlendingFactorDest.OneMinusSrcAlpha);
         }
 
-        unsafe public void DrawMask(ICubismTexture itexture, float[] vertex_buffer, float[] uv_buffer, short[] index_buffer, ICubismClippingMask iclipping_mask, Matrix4 clipping_matrix, bool use_culling)
+        unsafe public void DrawMask(ICubismTexture itexture, float[] vertex_buffer, float[] uv_buffer, short[] index_buffer, ICubismClippingMask iclipping_mask, Matrix4 clipping_matrix, bool use_culling, bool is_inverted_mask)
         {
             var texture = (CubismOpenTKTexture)itexture;
             var clipping_mask = (CubismOpenTKClippingMask)iclipping_mask;
@@ -182,7 +182,7 @@ namespace CubismFramework
             State.RestoreViewport();
         }
 
-        unsafe public void DrawMesh(ICubismTexture itexture, float[] vertex_buffer, float[] uv_buffer, short[] index_buffer, ICubismClippingMask iclipping_mask, Matrix4 clipping_matrix, BlendModeType blend_mode, bool use_culling, double opacity)
+        unsafe public void DrawMesh(ICubismTexture itexture, float[] vertex_buffer, float[] uv_buffer, short[] index_buffer, ICubismClippingMask iclipping_mask, Matrix4 clipping_matrix, BlendModeType blend_mode, bool use_culling, bool is_inverted_mask, double opacity)
         {
             var texture = (CubismOpenTKTexture)itexture;
             var clipping_mask = iclipping_mask as CubismOpenTKClippingMask;

@@ -25,7 +25,10 @@ namespace CubismFramework
             BlendMultiplicative = 0x2,
 
             /// <summary>Double-sidedness mask.</summary>
-            IsDoubleSided = 0x4
+            IsDoubleSided = 0x4,
+
+            /// <summary>Inverted Mask</summary>
+            IsInvertedMask = 0x8
         };
 
         /// <summary>Bit masks for dynamic drawable flags.</summary>
