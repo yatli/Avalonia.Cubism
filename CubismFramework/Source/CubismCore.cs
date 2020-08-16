@@ -56,7 +56,7 @@ namespace CubismFramework
 
         /// <summary>Queries Core version.</summary>
         /// <returns>Core version.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetVersion")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetVersion")]
         public static extern uint CsmGetVersion();
 
         /// <summary>バージョン情報を格納する構造体</summary>
@@ -81,25 +81,25 @@ namespace CubismFramework
         
         /// <summary>Queries log handler.</summary>
         /// <returns>Log handler.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetLogFunction")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetLogFunction")]
         public static extern IntPtr CsmGetLogFunction();
         
         /// <summary>Sets log handler.</summary>
         /// <param name="handler">Handler to use.</param>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmSetLogFunction")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmSetLogFunction")]
         public static extern void CsmSetLogFunction(IntPtr handler);
 
         /// <summary>Tries to revive a moc from bytes in place.</summary>
         /// <param name="address">Address of unrevived moc. The address must be aligned to 'csmAlignofMoc'.</param>
         /// <param name="size">Size of moc (in bytes).</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmReviveMocInPlace")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmReviveMocInPlace")]
         public static extern IntPtr CsmReviveMocInPlace(IntPtr address, int size);
         
         /// <summary>Queries size of a model in bytes.</summary>
         /// <param name="moc">Moc to query.</param>
         /// <returns>Valid size on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetSizeofModel")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetSizeofModel")]
         public static extern int CsmGetSizeofModel(IntPtr moc);
         
         /// <summary>Tries to instantiate a model in place.</summary>
@@ -107,12 +107,12 @@ namespace CubismFramework
         /// <param name="address">Address to place instance at. Address must be aligned to 'csmAlignofModel'.</param>
         /// <param name="size">Size of memory block for instance (in bytes).</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmInitializeModelInPlace")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmInitializeModelInPlace")]
         public static extern IntPtr CsmInitializeModelInPlace(IntPtr moc, IntPtr address, int size);
         
         /// <summary>Updates a model.</summary>
         /// <param name="model">Model to update.</param>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmUpdateModel")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmUpdateModel")]
         public static extern void CsmUpdateModel(IntPtr model);
 
         /// <summary>Reads info on a model canvas.</summary>
@@ -120,7 +120,7 @@ namespace CubismFramework
         /// <param name="outSizeInPixels">Canvas dimensions.</param>
         /// <param name="outOriginInPixels">Origin of model on canvas.</param>
         /// <param name="outPixelsPerUnit">Aspect used for scaling pixels to units.</param>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmReadCanvasInfo")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmReadCanvasInfo")]
         public static extern void CsmReadCanvasInfo(
             IntPtr model,
             [In, Out] float[] outSizeInPixels,
@@ -130,156 +130,156 @@ namespace CubismFramework
         /// <summary>Gets number of parameters.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid count on success; '-1' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetParameterCount")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetParameterCount")]
         public static extern int CsmGetParameterCount(IntPtr model);
 
         /// <summary>Gets parameter IDs. All IDs are null-terminated ANSI strings.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetParameterIds")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetParameterIds")]
         public static extern IntPtr CsmGetParameterIds(IntPtr model);
 
         /// <summary>Gets minimum parameter values.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetParameterMinimumValues")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetParameterMinimumValues")]
         public static extern IntPtr CsmGetParameterMinimumValues(IntPtr model);
 
         /// <summary>Gets maximum parameter values.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetParameterMaximumValues")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetParameterMaximumValues")]
         public static extern IntPtr CsmGetParameterMaximumValues(IntPtr model);
 
         /// <summary>Gets default parameter values.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetParameterDefaultValues")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetParameterDefaultValues")]
         public static extern IntPtr CsmGetParameterDefaultValues(IntPtr model);
 
         /// <summary>Gets read/write parameter values buffer.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetParameterValues")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetParameterValues")]
         public static extern IntPtr CsmGetParameterValues(IntPtr model);
 
         /// <summary>Gets number of parts.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid count on success; '-1' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetPartCount")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetPartCount")]
         public static extern int CsmGetPartCount(IntPtr model);
 
         /// <summary>Gets parts IDs. All IDs are null-terminated ANSI strings.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetPartIds")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetPartIds")]
         public static extern IntPtr CsmGetPartIds(IntPtr model);
 
         /// <summary>Gets read/write part opacities buffer.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetPartOpacities")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetPartOpacities")]
         public static extern IntPtr CsmGetPartOpacities(IntPtr model);
 
         /// <summary>Gets part's parent part indices.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetPartParentPartIndices")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetPartParentPartIndices")]
         public static extern IntPtr CsmGetPartParentPartIndices(IntPtr model);
 
         /// <summary>Gets number of drawables.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid count on success; '-1' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetDrawableCount")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetDrawableCount")]
         public static extern int CsmGetDrawableCount(IntPtr model);
 
         /// <summary>Gets drawable IDs. All IDs are null-terminated ANSI strings.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetDrawableIds")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetDrawableIds")]
         public static extern IntPtr CsmGetDrawableIds(IntPtr model);
 
         /// <summary>Gets constant drawable flags.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetDrawableConstantFlags")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetDrawableConstantFlags")]
         public static extern IntPtr CsmGetDrawableConstantFlags(IntPtr model);
 
         /// <summary>Gets dynamic drawable flags.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetDrawableDynamicFlags")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetDrawableDynamicFlags")]
         public static extern IntPtr CsmGetDrawableDynamicFlags(IntPtr model);
 
         /// <summary>Gets drawable texture indices.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetDrawableTextureIndices")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetDrawableTextureIndices")]
         public static extern IntPtr CsmGetDrawableTextureIndices(IntPtr model);
 
         /// <summary>Gets drawable draw orders.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetDrawableDrawOrders")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetDrawableDrawOrders")]
         public static extern IntPtr CsmGetDrawableDrawOrders(IntPtr model);
 
         /// <summary>Gets drawable render orders. The higher the order, the more up front a drawable is.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetDrawableRenderOrders")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetDrawableRenderOrders")]
         public static extern IntPtr CsmGetDrawableRenderOrders(IntPtr model);
 
         /// <summary>Gets drawable opacities.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetDrawableOpacities")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetDrawableOpacities")]
         public static extern IntPtr CsmGetDrawableOpacities(IntPtr model);
 
         /// <summary>Gets numbers of masks of each drawable.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetDrawableMaskCounts")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetDrawableMaskCounts")]
         public static extern IntPtr CsmGetDrawableMaskCounts(IntPtr model);
 
         /// <summary>Gets mask indices of each drawable.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetDrawableMasks")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetDrawableMasks")]
         public static extern IntPtr CsmGetDrawableMasks(IntPtr model);
 
         /// <summary>Gets number of vertices of each drawable.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetDrawableVertexCounts")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetDrawableVertexCounts")]
         public static extern IntPtr CsmGetDrawableVertexCounts(IntPtr model);
 
         /// <summary>Gets vertex position data of each drawable.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetDrawableVertexPositions")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetDrawableVertexPositions")]
         public static extern IntPtr CsmGetDrawableVertexPositions(IntPtr model);
 
         /// <summary>Gets texture coordinate data of each drawables.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetDrawableVertexUvs")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetDrawableVertexUvs")]
         public static extern IntPtr CsmGetDrawableVertexUvs(IntPtr model);
 
         /// <summary>Gets number of triangle indices for each drawable.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetDrawableIndexCounts")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetDrawableIndexCounts")]
         public static extern IntPtr CsmGetDrawableIndexCounts(IntPtr model);
 
         /// <summary>Gets triangle index data for each drawable.</summary>
         /// <param name="model">Model to query.</param>
         /// <returns>Valid pointer on success; '0' otherwise.</returns>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmGetDrawableIndices")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmGetDrawableIndices")]
         public static extern IntPtr CsmGetDrawableIndices(IntPtr model);
 
         /// <summary>Resets all dynamic drawable flags.</summary>
         /// <param name="model">Model containing flags.</param>
-        [DllImport("Live2DCubismCore.dll", EntryPoint = "csmResetDrawableDynamicFlags")]
+        [DllImport("Live2DCubismCore", EntryPoint = "csmResetDrawableDynamicFlags")]
         public static extern void CsmResetDrawableDynamicFlags(IntPtr model);
     }
 }
