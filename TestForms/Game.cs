@@ -53,7 +53,7 @@ namespace TestForms
             });
 
             var eye_blink_controller = new CubismEyeBlink(Asset.ParameterGroups["EyeBlink"]);
-            Asset.StartMotion(CubismAsset.MotionType.Effect, eye_blink_controller);
+            Asset.StartMotion(MotionType.Effect, eye_blink_controller);
 
             Renderer = new CubismOpenTKRenderer();
             RenderingManager = new CubismRenderingManager(Renderer, Asset);
@@ -70,7 +70,7 @@ namespace TestForms
                 var motion_group = Asset.MotionGroups[""];
                 int number = new Random().Next() % motion_group.Length;
                 var motion = (CubismMotion)motion_group[number];
-                LastMotion = Asset.StartMotion(CubismAsset.MotionType.Base, motion, false);
+                LastMotion = Asset.StartMotion(MotionType.Base, motion, false);
             }
 
             Asset.Update(elapsed);

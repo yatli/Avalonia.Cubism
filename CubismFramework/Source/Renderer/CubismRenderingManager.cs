@@ -150,7 +150,7 @@ namespace CubismFramework
                     float[] vertex_buffer = drawable.VertexBuffer;
                     float[] uv_buffer = drawable.UvBuffer;
                     short[] index_buffer = drawable.IndexBuffer;
-                    Renderer.DrawMask(texture, vertex_buffer, uv_buffer, index_buffer, clipping_context.Target, clipping_context.MatrixForMask, drawable.UseCulling);
+                    Renderer.DrawMask(texture, vertex_buffer, uv_buffer, index_buffer, clipping_context.Target, clipping_context.MatrixForMask, drawable.UseCulling, drawable.IsInvertedMask);
                 }
                 Renderer.EndDrawingMask(clipping_context.Target);
             }
@@ -196,7 +196,7 @@ namespace CubismFramework
                     CubismClippingContext clipping_context = DrawableClippingContexts[drawable_index];
                     ICubismClippingMask clipping_mask = (clipping_context != null) ? clipping_context.Target : null;
                     Matrix4 clipping_matrix = (clipping_context != null) ? clipping_context.MatrixForDraw : Matrix4.Identity;
-                    Renderer.DrawMesh(texture, vertex_buffer, uv_buffer, index_buffer, clipping_mask, clipping_matrix, drawable.BlendMode, drawable.UseCulling, drawable.Opacity);
+                    Renderer.DrawMesh(texture, vertex_buffer, uv_buffer, index_buffer, clipping_mask, clipping_matrix, drawable.BlendMode, drawable.UseCulling, drawable.IsInvertedMask, drawable.Opacity);
                 }
             }
             finally

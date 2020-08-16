@@ -17,6 +17,7 @@ namespace CubismFramework
             Name = name;
             TextureIndex = texture_number;
             UseCulling = ((constant_flags & CubismCore.ConstantDrawableFlags.IsDoubleSided) == 0);
+            IsInvertedMask = ((constant_flags & CubismCore.ConstantDrawableFlags.IsInvertedMask) == 0);
             BlendMode = ConvertBlendMode(constant_flags);
             ClippingMaskIndexes = clipping_masks;
         }
@@ -116,6 +117,8 @@ namespace CubismFramework
         /// 背面カリングの使用
         /// </summary>
         public bool UseCulling { get; private set; } = false;
+
+        public bool IsInvertedMask { get; private set; } = false;
 
         /// <summary>
         /// ブレンドモード
