@@ -6,10 +6,10 @@
     <UseWindowsForms>true</UseWindowsForms>
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CubismFramework\CubismFramework.csproj"/>
-  </ItemGroup>
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CubismFramework\CubismFramework.csproj"/>
+  </ItemGroup>
 </Project>
