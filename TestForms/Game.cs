@@ -46,8 +46,7 @@ namespace TestForms
 
             Asset = new CubismAsset(@"hiyori_free_t06.model3.json", (string file_path) =>
             {
-                string file_name = Path.GetFileNameWithoutExtension(file_path);
-                string resource_name = file_name.Replace('.', '_');
+                string resource_name = Path.GetFileNameWithoutExtension(file_path).Replace('.', '_');
                 byte[] byte_array = (byte[])Hiyori.ResourceManager.GetObject(resource_name);
                 return new MemoryStream(byte_array);
             });

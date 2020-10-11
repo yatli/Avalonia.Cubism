@@ -22,11 +22,10 @@ namespace CubismFramework
         /// <returns>trueなら読み込みが成功したことを示す。</returns>
         public CubismAsset(string model_file_path, CubismFileLoader reader)
         {
-            string base_dir = Path.GetDirectoryName(model_file_path);
             var model_setting = CubismModelSettingJson.Create(reader(model_file_path));
             
             // mocファイルを読み込み、CubismModelを作成する
-            using (Stream stream = reader(Path.Combine(base_dir, model_setting.FileReferences.Moc)))
+            using (Stream stream = reader(model_setting.FileReferences.Moc))
             {
                 byte[] stream_bytes = new byte[stream.Length];
                 stream.Read(stream_bytes, 0, (int)stream.Length);
@@ -78,7 +77,7 @@ namespace CubismFramework
                     var motion_group = new List<ICubismMotion>();
                     foreach (var motion_item in motion_group_item)
                     {
-                        using (Stream stream = reader(Path.Combine(base_dir, motion_item.File)))
+                        using (Stream stream = reader(motion_item.File))
                         {
                             var motion = LoadMotion(stream, motion_item);
                             if (motion != null)
@@ -98,7 +97,7 @@ namespace CubismFramework
                 foreach (var expression_item in model_setting.FileReferences.Expressions)
                 {
                     ICubismMotion expression;
-                    using (Stream stream = reader(Path.Combine(base_dir, expression_item.File)))
+                    using (Stream stream = reader(expression_item.File))
                     {
                         expression = new CubismExpressionMotion(stream, Model);
                     }
@@ -113,7 +112,7 @@ namespace CubismFramework
             UserData = new CubismUserData();
             if (string.IsNullOrEmpty(model_setting.FileReferences.UserData) == false)
             {
-                using (Stream stream = reader(Path.Combine(base_dir, model_setting.FileReferences.UserData)))
+                using (Stream stream = reader(model_setting.FileReferences.UserData))
                 {
                     UserData = new CubismUserData(stream);
                 }
@@ -137,8 +136,7 @@ namespace CubismFramework
             TextureByteArrays = new byte[model_setting.FileReferences.Textures.Length][];
             for (int index = 0; index < TextureByteArrays.Length; index++)
             {
-                string path = Path.Combine(base_dir, model_setting.FileReferences.Textures[index]);
-                using (Stream stream = reader(path))
+                using (Stream stream = reader(model_setting.FileReferences.Textures[index]))
                 {
                     byte[] buffer = new byte[stream.Length];
                     stream.Read(buffer, 0, buffer.Length);
@@ -152,7 +150,7 @@ namespace CubismFramework
             // ポーズを読み込む
             if (string.IsNullOrEmpty(model_setting.FileReferences.Pose) == false)
             {
-                using (Stream stream = reader(Path.Combine(base_dir, model_setting.FileReferences.Pose)))
+                using (Stream stream = reader(model_setting.FileReferences.Pose))
                 {
                     PoseController = new CubismPose(stream, Model);
                 }
