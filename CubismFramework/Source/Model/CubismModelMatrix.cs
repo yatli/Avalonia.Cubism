@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using osuTK;
+using System.Numerics;
 
 namespace CubismFramework
 {
@@ -21,14 +21,14 @@ namespace CubismFramework
 
         public void SetWidth(double w)
         {
-            Matrix[0, 0] = (float)(w / Width);
-            Matrix[1, 1] = (float)(w / Width);
+            Matrix.M11 = (float)(w / Width);
+            Matrix.M22 = (float)(w / Width);
         }
 
         public void SetHeight(double h)
         {
-            Matrix[0, 0] = (float)(h / Height);
-            Matrix[1, 1] = (float)(h / Height);
+            Matrix.M11 = (float)(h / Height);
+            Matrix.M22 = (float)(h / Height);
         }
 
         void SetCenterPosition(double x, double y)
@@ -39,32 +39,32 @@ namespace CubismFramework
 
         public void CenterX(double x)
         {
-            double w = Width * Matrix[0, 0];
-            Matrix[3, 0] = (float)(x - (w / 2.0));
+            double w = Width * Matrix.M11;
+            Matrix.M41 = (float)(x - (w / 2.0));
         }
 
         public void CenterY(double y)
         {
-            double h = Height * Matrix[1, 1];
-            Matrix[3, 1] = (float)(y - (h / 2.0));
+            double h = Height * Matrix.M22;
+            Matrix.M42 = (float)(y - (h / 2.0));
         }
 
         public void Bottom(double y)
         {
-            double h = Height * Matrix[1, 1];
-            Matrix[3, 1] = (float)(y - h);
+            double h = Height * Matrix.M22;
+            Matrix.M42 = (float)(y - h);
         }
 
         public void Right(double x)
         {
-            double w = Width * Matrix[0, 0];
-            Matrix[3, 0] = (float)(x - w);
+            double w = Width * Matrix.M11;
+            Matrix.M41 = (float)(x - w);
         }
 
         public void SetPosition(double x, double y)
         {
-            Matrix[3, 0] = (float)x;
-            Matrix[3, 1] = (float)y;
+            Matrix.M41 = (float)x;
+            Matrix.M42 = (float)y;
         }
 
         public void Top(double y)
@@ -79,12 +79,12 @@ namespace CubismFramework
 
         public void SetX(double x)
         {
-            Matrix[3, 0] = (float)x;
+            Matrix.M41 = (float)x;
         }
 
         public void SetY(double y)
         {
-            Matrix[3, 1] = (float)y;
+            Matrix.M42 = (float)y;
         }
 
         public void SetupFromLayout(Dictionary<string, double> layout)
@@ -144,6 +144,6 @@ namespace CubismFramework
         private double Width = 0.0;
 
         private double Height = 0.0;
-        public Matrix4 Matrix = Matrix4.Identity;
+        public Matrix4x4 Matrix = Matrix4x4.Identity;
     }
 }

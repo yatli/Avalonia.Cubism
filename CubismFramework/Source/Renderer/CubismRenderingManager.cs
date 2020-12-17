@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Drawing;
-using osuTK;
+using System.Numerics;
 
 namespace CubismFramework
 {
@@ -126,7 +126,7 @@ namespace CubismFramework
                 float scale_y = 1.0f / inflated_bounds.Height;
 
                 // マスク生成時に使う行列を求める
-                clipping_context.MatrixForMask = new Matrix4(
+                clipping_context.MatrixForMask = new Matrix4x4(
                     2.0f * scale_x, 0.0f, 0.0f, 0.0f,
                     0.0f, 2.0f * scale_y, 0.0f, 0.0f,
                     0.0f, 0.0f, 1.0f, 0.0f,
@@ -134,7 +134,7 @@ namespace CubismFramework
                 );
 
                 // モデル描画時にモデルの座標からマスクの座標へ変換する行列を求める
-                clipping_context.MatrixForDraw = new Matrix4(
+                clipping_context.MatrixForDraw = new Matrix4x4(
                         scale_x, 0.0f, 0.0f, 0.0f,
                         0.0f, scale_y, 0.0f, 0.0f,
                         0.0f, 0.0f, 1.0f, 0.0f,
@@ -159,7 +159,7 @@ namespace CubismFramework
         /// <summary>
         /// レンダラーでモデルを描画する。
         /// </summary>
-        public void Draw(Matrix4 mvp_matrix)
+        public void Draw(Matrix4x4 mvp_matrix)
         {
             try
             {
@@ -195,7 +195,7 @@ namespace CubismFramework
                     short[] index_buffer = drawable.IndexBuffer;
                     CubismClippingContext clipping_context = DrawableClippingContexts[drawable_index];
                     ICubismClippingMask clipping_mask = (clipping_context != null) ? clipping_context.Target : null;
-                    Matrix4 clipping_matrix = (clipping_context != null) ? clipping_context.MatrixForDraw : Matrix4.Identity;
+                    Matrix4x4 clipping_matrix = (clipping_context != null) ? clipping_context.MatrixForDraw : Matrix4x4.Identity;
                     Renderer.DrawMesh(texture, vertex_buffer, uv_buffer, index_buffer, clipping_mask, clipping_matrix, drawable.BlendMode, drawable.UseCulling, drawable.IsInvertedMask, drawable.Opacity);
                 }
             }

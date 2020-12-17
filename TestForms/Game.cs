@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using CubismFramework;
 using osuTK;
@@ -77,9 +78,9 @@ namespace TestForms
             GL.Viewport(0, 0, ClientRectangle.Width, ClientRectangle.Height);
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
-            Matrix4 mvp_matrix = Matrix4.Identity;
-            mvp_matrix[0, 0] = 2.0f;
-            mvp_matrix[1, 1] = 2.0f * Width / Height;
+            Matrix4x4 mvp_matrix = Matrix4x4.Identity;
+            mvp_matrix.M11 = 2.0f;
+            mvp_matrix.M22 = 2.0f * Width / Height;
             RenderingManager.Draw(mvp_matrix);
 
             SwapBuffers();

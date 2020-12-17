@@ -1,4 +1,4 @@
-﻿using osuTK;
+﻿using System.Numerics;
 
 namespace CubismFramework
 {
@@ -45,7 +45,7 @@ namespace CubismFramework
         /// </summary>
         /// <param name="model_color">モデルの色。4要素のfloat配列として与える。</param>
         /// <param name="mvp_matrix">MVP行列</param>
-        void StartDrawingModel(float[] model_color, Matrix4 mvp_matrix);
+        void StartDrawingModel(float[] model_color, Matrix4x4 mvp_matrix);
         
         /// <summary>
         /// クリッピングマスクの描画を開始する際に呼ばれる。
@@ -62,7 +62,7 @@ namespace CubismFramework
         /// <param name="index_buffer">インデックスバッファ</param>
         /// <param name="clipping_mask">描画先のクリッピングマスク</param>
         /// <param name="clipping_matrix">クリッピングマスクの座標系へ座標変換するための行列</param>
-        void DrawMask(ICubismTexture texture, float[] vertex_buffer, float[] uv_buffer, short[] index_buffer, ICubismClippingMask clipping_mask, Matrix4 clipping_matrix, bool use_culling, bool is_inverted_mask);
+        void DrawMask(ICubismTexture texture, float[] vertex_buffer, float[] uv_buffer, short[] index_buffer, ICubismClippingMask clipping_mask, Matrix4x4 clipping_matrix, bool use_culling, bool is_inverted_mask);
 
         /// <summary>
         /// クリッピングマスクの描画が終了した際に呼ばれる。
@@ -79,7 +79,7 @@ namespace CubismFramework
         /// <param name="texture">テクスチャ</param>
         /// <param name="clipping_mask">描画に使用するクリッピングマスク。マスクが使用されないときはnullが渡される。</param>
         /// <param name="clipping_matrix">クリッピングマスクの座標系へ座標変換するための行列</param>
-        void DrawMesh(ICubismTexture texture, float[] vertex_buffer, float[] uv_buffer, short[] index_buffer, ICubismClippingMask clipping_mask, Matrix4 clipping_matrix, BlendModeType blend_mode, bool use_culling, bool is_inverted_mask, double opacity);
+        void DrawMesh(ICubismTexture texture, float[] vertex_buffer, float[] uv_buffer, short[] index_buffer, ICubismClippingMask clipping_mask, Matrix4x4 clipping_matrix, BlendModeType blend_mode, bool use_culling, bool is_inverted_mask, double opacity);
         
         /// <summary>
         /// モデルの描画が終了した際に呼ばれる。

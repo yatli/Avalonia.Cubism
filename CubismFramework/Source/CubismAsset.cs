@@ -310,8 +310,8 @@ namespace CubismFramework
                 return false;
             }
             var model_matrix = ModelMatrix.Matrix;
-            double tx = ((x - model_matrix[3, 0]) / model_matrix[0, 0]);
-            double ty = ((x - model_matrix[3, 1]) / model_matrix[1, 1]);
+            double tx = ((x - model_matrix.M41) / model_matrix.M11);
+            double ty = ((x - model_matrix.M42) / model_matrix.M22);
             return drawable.BoundingBox.Contains((float)tx, (float)ty);
         }
 
