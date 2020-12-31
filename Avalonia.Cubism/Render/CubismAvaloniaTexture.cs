@@ -10,10 +10,11 @@ using CubismFramework;
 using SkiaSharp;
 using Avalonia.Skia;
 using System.IO;
+using System.Reflection;
 
 namespace Avalonia.Cubism.Render
 {
-    public unsafe class CubismAvaloniaTexture : ICubismTexture, IDisposable
+    unsafe class CubismAvaloniaTexture : ICubismTexture, IDisposable
     {
         public int TextureId { get; private set; }
         public int Width { get; private set; }
@@ -32,47 +33,38 @@ namespace Avalonia.Cubism.Render
             TextureId = arr[0];
             GL.BindTexture(GL_TEXTURE_2D, TextureId);
             GL.TexImage2D(GL_TEXTURE_2D, 0, InternalFormat, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, IntPtr.Zero);
-            SetupParameters(GL_TEXTURE_MIN_FILTER, GL_CLAMP_TO_EDGE);
+            SetupParameters(GL_LINEAR, GL_CLAMP_TO_EDGE);
             GL.BindTexture(GL_TEXTURE_2D, 0);
         }
 
-        public CubismAvaloniaTexture(GlInterface GL, Bitmap bitmap)
+        public CubismAvaloniaTexture(GlInterface GL, GlInterfaceEx GLex, Bitmap _bitmap)
         {
             this.GL = GL;
             var InternalFormat = GL.ContextInfo.Version.Type == GlProfileType.OpenGLES ? GL_RGBA : GL_RGBA8;
-            int source_format;
-            switch(SKImageInfo.PlatformColorType.ToPixelFormat())
-            {
-                case PixelFormat.Bgra8888:
-                    source_format = GL_BGRA;
-                    break;
-                case PixelFormat.Rgba8888:
-                    source_format = GL_RGBA;
-                    break;
-                default:
-                    throw new Exception();
-            }
 
             var arr = new int[2];
             GL.GenTextures(1, arr);
             TextureId = arr[0];
 
-            byte[] data;
-            using (MemoryStream ms = new MemoryStream())
+            var impl = _bitmap.PlatformImpl.Item;
+            var field = impl.GetType().GetField("_image", BindingFlags.NonPublic | BindingFlags.Instance);
+            int w = _bitmap.PixelSize.Width;
+            int h = _bitmap.PixelSize.Height;
+            var img = (SKImage)field.GetValue(impl);
+            var info = new SKImageInfo(w, h, SKColorType.Bgra8888);
+            byte[] buf = new byte[w * h * 4];
+            fixed (byte* p = buf)
             {
-                bitmap.Save(ms);
-                data = ms.ToArray();
+                img.ReadPixels(info, (IntPtr)p);
+                GL.BindTexture(GL_TEXTURE_2D, TextureId);
+                GLex.PixelStorei(GL_UNPACK_ALIGNMENT, 4);
+                GLex.PixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+                // TODO restore pixel store mode
+                GL.TexImage2D(GL_TEXTURE_2D, 0, InternalFormat, w, h, 0, GL_BGRA, GL_UNSIGNED_BYTE, (IntPtr)p);
+                SetupParameters(GL_LINEAR, GL_CLAMP_TO_EDGE);
+                GL.BindTexture(GL_TEXTURE_2D, 0);
             }
 
-            GL.BindTexture(GL_TEXTURE_2D, TextureId);
-            fixed(byte* p = data)
-            {
-                GL.TexImage2D(GL_TEXTURE_2D, 0, InternalFormat, bitmap.PixelSize.Width, bitmap.PixelSize.Height, 0, source_format, GL_UNSIGNED_BYTE, new IntPtr(p));
-            }
-            GL.TexParameteri(GL_TEXTURE_2D, GL_UNPACK_ALIGNMENT, 4);
-            GL.TexParameteri(GL_TEXTURE_2D, GL_UNPACK_ROW_LENGTH, 0);
-            SetupParameters(GL_TEXTURE_MIN_FILTER, GL_CLAMP_TO_EDGE);
-            GL.BindTexture(GL_TEXTURE_2D, 0);
         }
 
         ~CubismAvaloniaTexture()

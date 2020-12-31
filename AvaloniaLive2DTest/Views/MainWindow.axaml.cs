@@ -28,7 +28,9 @@ namespace AvaloniaLive2DTest.Views
                 new CubismAsset(@"hiyori_free_t06.model3.json", (string file_path) =>
                     {
                         var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-                        return assets.Open(new Uri($"avares://AvaloniaLive2DTest/Assets/Live2D/{file_path}"));
+                        var tgt = assets.Open(new Uri($"avares://AvaloniaLive2DTest/Assets/Live2D/{file_path}"));
+                        Console.WriteLine($"asset load successful: {file_path}");
+                        return tgt;
                     });
         }
     }

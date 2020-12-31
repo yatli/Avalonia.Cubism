@@ -12,15 +12,18 @@ using CubismFramework;
 
 namespace Avalonia.Cubism.Render
 {
-    public class CubismAvaloniaRenderer : ICubismRenderer, IDisposable
+    class CubismAvaloniaRenderer : ICubismRenderer, IDisposable
     {
         private const int ClippingMaskSize = 256;
         private readonly GlInterface GL;
+        private readonly GlInterfaceEx GLex;
         private Matrix4x4 MvpMatrix;
         private float[] ModelColor = new float[4];
         private static float[] DefaultModelColor = new float[4] { 1.0f, 1.0f, 1.0f, 1.0f };
         private CubismAvaloniaState State;
         private CubismAvaloniaShaderManager ShaderManager;
+        private int m_vertexbuf;
+        private int m_uvbuf;
         private List<CubismAvaloniaClippingMask> ClippingMasks = new List<CubismAvaloniaClippingMask>();
         private List<CubismAvaloniaTexture> Textures = new List<CubismAvaloniaTexture>();
         private bool disposedValue = false;
@@ -32,15 +35,15 @@ namespace Avalonia.Cubism.Render
                 switch (value)
                 {
                 case BlendModeType.Normal:
-                    GL.BlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, BlendingFactorSrc.One, GL_ONE_MINUS_SRC_ALPHA);
+                    GLex.BlendFuncSeparate(/*GL_ONE*/1, GL_ONE_MINUS_SRC_ALPHA, /*BlendingFactorSrc.One*/ 1, GL_ONE_MINUS_SRC_ALPHA);
                     break;
 
                 case BlendModeType.Add:
-                    GL.BlendFuncSeparate(BlendingFactorSrc.One, BlendingFactorDest.One, BlendingFactorSrc.Zero, BlendingFactorDest.One);
+                    GLex.BlendFuncSeparate(/*BlendingFactorSrc.One*/ 1, /*BlendingFactorDest.One*/ 1, /*BlendingFactorSrc.Zero*/ 0, /*BlendingFactorDest.One*/ 1);
                     break;
 
                 case BlendModeType.Multiply:
-                    GL.BlendFuncSeparate(BlendingFactorSrc.DstColor, BlendingFactorDest.OneMinusSrcAlpha, BlendingFactorSrc.Zero, BlendingFactorDest.One);
+                    GLex.BlendFuncSeparate(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA, /*BlendingFactorSrc.Zero*/ 0, /*BlendingFactorDest.One*/ 1);
                     break;
                 }
             }
@@ -53,17 +56,23 @@ namespace Avalonia.Cubism.Render
                 if (value)
                     GL.Enable(GL_CULL_FACE);
                 else
-                    GL.Disable(GL_CULL_FACE);
+                    GLex.Disable(GL_CULL_FACE);
             }
         }
 
         public bool UsePremultipliedAlpha { set; get; }
 
-        public CubismAvaloniaRenderer(GlInterface gl)
+        public CubismAvaloniaRenderer(GlInterface gl, GlInterfaceEx glex, GlVersion glVersion)
         {
             GL = gl;
-            State = new CubismAvaloniaState(gl);
-            ShaderManager = new CubismAvaloniaShaderManager(gl);
+            GLex = glex;
+            State = new CubismAvaloniaState(gl, glex);
+            ShaderManager = new CubismAvaloniaShaderManager(gl, glVersion);
+
+            // create some buffer objects
+            m_vertexbuf = GL.GenBuffer();
+            m_uvbuf = GL.GenBuffer();
+            Console.WriteLine("CubismAvaloniaRenderer: initialized");
         }
 
         ~CubismAvaloniaRenderer()
@@ -103,7 +112,7 @@ namespace Avalonia.Cubism.Render
         public ICubismTexture CreateTexture(byte[] texture_bytes)
         {
             var bitmap = new Bitmap(new MemoryStream(texture_bytes));
-            var texture = new CubismAvaloniaTexture(GL, bitmap);
+            var texture = new CubismAvaloniaTexture(GL, GLex, bitmap);
             Textures.Add(texture);
             return texture;
         }
@@ -126,13 +135,14 @@ namespace Avalonia.Cubism.Render
         {
             State.SaveState();
 
-            GL.FrontFace(GL_CCW);
+
+            GLex.FrontFace(GL_CCW);
             
-            GL.Disable(GL_SCISSOR_TEST);
-            GL.Disable(GL_STENCIL_TEST);
-            GL.Disable(GL_DEPTH_TEST);
+            GLex.Disable(GL_SCISSOR_TEST);
+            GLex.Disable(GL_STENCIL_TEST);
+            GLex.Disable(GL_DEPTH_TEST);
             GL.Enable(GL_BLEND);
-            GL.ColorMask(true, true, true, true);
+            GLex.ColorMask(1, 1, 1, 1);
 
             GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
             GL.BindBuffer(GL_ARRAY_BUFFER, 0);
@@ -157,7 +167,7 @@ namespace Avalonia.Cubism.Render
             var shader = ShaderManager.ShaderForDrawMask();
             GL.UseProgram(shader.ProgramId);
 
-            GL.BlendFuncSeparate(BlendingFactorSrc.Zero, BlendingFactorDest.OneMinusSrcColor, BlendingFactorSrc.Zero, BlendingFactorDest.OneMinusSrcAlpha);
+            GLex.BlendFuncSeparate(/*BlendingFactorSrc.Zero*/ 0, GL_ONE_MINUS_SRC_COLOR, /*BlendingFactorSrc.Zero*/ 0, GL_ONE_MINUS_SRC_ALPHA);
         }
 
         unsafe public void DrawMask(ICubismTexture itexture, float[] vertex_buffer, float[] uv_buffer, short[] index_buffer, ICubismClippingMask iclipping_mask, Matrix4x4 clipping_matrix, bool use_culling, bool is_inverted_mask)
@@ -171,19 +181,24 @@ namespace Avalonia.Cubism.Render
 
             GL.ActiveTexture(GL_TEXTURE0);
             GL.BindTexture(GL_TEXTURE_2D, texture.TextureId);
-            GL.Uniform1f(shader.SamplerTexture0Location, 0);
+            GLex.Uniform1i(shader.SamplerTexture0Location, 0);
 
-            GL.EnableVertexAttribArray(shader.AttributePositionLocation);
+            GL.BindBuffer(GL_ARRAY_BUFFER, m_vertexbuf);
             fixed (float* ptr = vertex_buffer)
-                GL.VertexAttribPointer(shader.AttributePositionLocation, 2, GL_FLOAT, 0, sizeof(float) * 2, (IntPtr)ptr);
+                GL.BufferData(GL_ARRAY_BUFFER, (IntPtr)(sizeof(float) * vertex_buffer.Length), (IntPtr)ptr, GL_STATIC_DRAW);
+            GL.VertexAttribPointer(shader.AttributePositionLocation, 2, GL_FLOAT, 0, sizeof(float)*2, IntPtr.Zero);
+            GL.EnableVertexAttribArray(shader.AttributePositionLocation);
 
-            GL.EnableVertexAttribArray(shader.AttributeTexCoordLocation);
+            GL.BindBuffer(GL_ARRAY_BUFFER, m_uvbuf);
             fixed (float* ptr = uv_buffer)
-                GL.VertexAttribPointer(shader.AttributeTexCoordLocation, 2, GL_FLOAT, 0, sizeof(float) * 2, (IntPtr)ptr);
+                GL.BufferData(GL_ARRAY_BUFFER, (IntPtr)(sizeof(float) * uv_buffer.Length), (IntPtr)ptr, GL_STATIC_DRAW);
+            GL.VertexAttribPointer(shader.AttributeTexCoordLocation, 2, GL_FLOAT, 0, 0, IntPtr.Zero);
+            GL.EnableVertexAttribArray(shader.AttributeTexCoordLocation);
 
-            GL.Uniform4(shader.UnifromChannelFlagLocation, 1.0f, 0.0f, 0.0f, 0.0f);
-            GL.UniformMatrix4(shader.UniformClipMatrixLocation, false, ref clipping_matrix);
-            GL.Uniform4(shader.UniformBaseColorLocation, -1.0f, -1.0f, 1.0f, 1.0f);
+            GLex.Uniform4f(shader.UnifromChannelFlagLocation, 1.0f, 0.0f, 0.0f, 0.0f);
+            Matrix4x4* p = &clipping_matrix;
+            GLex.UniformMatrix4fv(shader.UniformClipMatrixLocation, 1, /*transpose*/0, (float*)p);
+            GLex.Uniform4f(shader.UniformBaseColorLocation, -1.0f, -1.0f, 1.0f, 1.0f);
 
             fixed (short* ptr = index_buffer)
                 GL.DrawElements(GL_TRIANGLES, index_buffer.Length, GL_UNSIGNED_SHORT, (IntPtr)ptr);
@@ -207,23 +222,29 @@ namespace Avalonia.Cubism.Render
             var shader = ShaderManager.ShaderForDrawMesh(use_clipping_mask, UsePremultipliedAlpha);
             GL.UseProgram(shader.ProgramId);
 
-            GL.EnableVertexAttribArray(shader.AttributePositionLocation);
+            GL.BindBuffer(GL_ARRAY_BUFFER, m_vertexbuf);
             fixed (float* ptr = vertex_buffer)
-                GL.VertexAttribPointer(shader.AttributePositionLocation, 2, GL_FLOAT, 0, sizeof(float) * 2, (IntPtr)ptr);
+                GL.BufferData(GL_ARRAY_BUFFER, (IntPtr)(sizeof(float) * vertex_buffer.Length), (IntPtr)ptr, GL_STATIC_DRAW);
+            GL.VertexAttribPointer(shader.AttributePositionLocation, 2, GL_FLOAT, 0, sizeof(float)*2, IntPtr.Zero);
+            GL.EnableVertexAttribArray(shader.AttributePositionLocation);
 
-            GL.EnableVertexAttribArray(shader.AttributeTexCoordLocation);
+            GL.BindBuffer(GL_ARRAY_BUFFER, m_uvbuf);
             fixed (float* ptr = uv_buffer)
-                GL.VertexAttribPointer(shader.AttributeTexCoordLocation, 2, GL_FLOAT, 0, sizeof(float) * 2, (IntPtr)ptr);
+                GL.BufferData(GL_ARRAY_BUFFER, (IntPtr)(sizeof(float) * uv_buffer.Length), (IntPtr)ptr, GL_STATIC_DRAW);
+            GL.VertexAttribPointer(shader.AttributeTexCoordLocation, 2, GL_FLOAT, 0, 0, IntPtr.Zero);
+            GL.EnableVertexAttribArray(shader.AttributeTexCoordLocation);
+
 
             if (use_clipping_mask == true)
             {
                 GL.ActiveTexture(GL_TEXTURE1);
                 GL.BindTexture(GL_TEXTURE_2D, clipping_mask.TextureId);
-                GL.Uniform1f(shader.SamplerTexture1Location, 1);
+                GLex.Uniform1i(shader.SamplerTexture1Location, 1);
 
-                GL.UniformMatrix4(shader.UniformClipMatrixLocation, false, ref clipping_matrix);
+                Matrix4x4* p = &clipping_matrix;
+                GLex.UniformMatrix4fv(shader.UniformClipMatrixLocation, 1, 0, (float*)p);
 
-                GL.Uniform4(shader.UnifromChannelFlagLocation, 1.0f, 0.0f, 0.0f, 0.0f);
+                GLex.Uniform4f(shader.UnifromChannelFlagLocation, 1.0f, 0.0f, 0.0f, 0.0f);
             }
             else
             {
@@ -233,9 +254,12 @@ namespace Avalonia.Cubism.Render
 
             GL.ActiveTexture(GL_TEXTURE0);
             GL.BindTexture(GL_TEXTURE_2D, texture.TextureId);
-            GL.Uniform1f(shader.SamplerTexture0Location, 0);
+            GLex.Uniform1i(shader.SamplerTexture0Location, 0);
 
-            GL.UniformMatrix4(shader.UniformMatrixLocation, false, ref MvpMatrix);
+            fixed(Matrix4x4* pmvp = &MvpMatrix) 
+            {
+                GLex.UniformMatrix4fv(shader.UniformMatrixLocation, 1, 0, (float*)pmvp);
+            }
 
             float[] color = new float[4];
             ModelColor.CopyTo(color, 0);
@@ -246,7 +270,7 @@ namespace Avalonia.Cubism.Render
                 color[1] *= color[3];
                 color[2] *= color[3];
             }
-            GL.Uniform4(shader.UniformBaseColorLocation, color[0], color[1], color[2], color[3]);
+            GLex.Uniform4f(shader.UniformBaseColorLocation, color[0], color[1], color[2], color[3]);
 
             fixed (short* ptr = index_buffer)
                 GL.DrawElements(GL_TRIANGLES, index_buffer.Length, GL_UNSIGNED_SHORT, (IntPtr)ptr);

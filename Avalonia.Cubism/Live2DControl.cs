@@ -10,6 +10,8 @@ using System.Diagnostics;
 using CubismFramework;
 using System.IO;
 using Avalonia.Cubism.Render;
+using System.Numerics;
+using Avalonia.VisualTree;
 
 namespace Avalonia.Cubism
 {
@@ -20,8 +22,12 @@ namespace Avalonia.Cubism
         private CubismAsset m_asset = null;
         private ICubismRenderer m_renderer;
         private CubismRenderingManager m_rendermgr;
+        private CubismMotionQueueEntry m_lastmotion;
 
         private GlInterface m_gl;
+        private GlInterfaceEx m_glex;
+        private unsafe GlDebugProc m_debugProc;
+        private int[] m_vao;
 
         private void UpdateAsset(CubismAsset asset)
         {
@@ -69,15 +75,34 @@ namespace Avalonia.Cubism
                 return;
             }
 
-            m_renderer = new CubismAvaloniaRenderer(m_gl);
+            m_renderer = new CubismAvaloniaRenderer(m_gl, m_glex, GlVersion);
             m_rendermgr = new CubismRenderingManager(m_renderer, m_asset);
         }
 
-        protected override void OnOpenGlInit(GlInterface gl, int fb)
+        private static unsafe void OnGlDebugMessage(int src, int ty, int id, int sev, int len, byte* msg, void* userparam)
         {
-            m_time.Restart();
+            var str = UTF8Encoding.UTF8.GetString(msg, len);
+            Console.WriteLine($"GlDbg: {str}");
+        }
+
+        protected unsafe override void OnOpenGlInit(GlInterface gl, int fb)
+        {
             m_gl = gl;
+            m_glex = new GlInterfaceEx(gl);
+
+            // hook up debug handler
+            m_debugProc = OnGlDebugMessage;
+            gl.Enable(GL_DEBUG_OUTPUT);
+            m_glex.DebugMessageCallback(m_debugProc , null);
+
+            // allocate vertex array object (VAO)
+            m_vao = new int[1];
+            m_glex.GenVertexArrays(1, m_vao);
+            m_glex.BindVertexArray(m_vao[0]);
+
+            // initialize Cubism renderer
             TryUpdateRenderer();
+            m_time.Restart();
         }
 
         protected override void OnOpenGlDeinit(GlInterface gl, int fb)
@@ -88,6 +113,29 @@ namespace Avalonia.Cubism
 
         protected override void OnOpenGlRender(GlInterface gl, int fb)
         {
+            if ((m_lastmotion == null) || (m_lastmotion.Finished == true))
+            {
+                var motion_group = Asset.MotionGroups[""];
+                int number = new Random().Next() % motion_group.Length;
+                var motion = (CubismMotion)motion_group[number];
+                m_lastmotion = Asset.StartMotion(MotionType.Base, motion, false);
+            }
+
+            Asset.Update(m_time.ElapsedMilliseconds / 1000.0);
+            m_time.Restart();
+            double scale = VisualRoot.RenderScaling;
+            int w = (int)(Bounds.Width * scale);
+            int h = (int)(Bounds.Height * scale);
+
+            gl.Viewport(0, 0, w, h);
+            gl.Clear(GL_COLOR_BUFFER_BIT);
+
+            Matrix4x4 mvp_matrix = Matrix4x4.Identity;
+            mvp_matrix.M11 = 2.0f;
+            mvp_matrix.M22 = 2.0f * w / h;
+
+            m_rendermgr.Draw(mvp_matrix);
+
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
         }
 
@@ -99,13 +147,6 @@ namespace Avalonia.Cubism
 
         public Live2DControl() : base()
         {
-        }
-
-        private void CheckError(GlInterface gl)
-        {
-            int err;
-            while ((err = gl.GetError()) != GL_NO_ERROR)
-                Console.WriteLine(err);
         }
 
     }

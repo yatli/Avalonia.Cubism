@@ -18,7 +18,7 @@ namespace AvaloniaLive2DTest
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
-                .LogToDebug()
+                .LogToTrace()
                 .UseReactiveUI()
                 .With(new Win32PlatformOptions { UseWgl = true });
     }

@@ -4,7 +4,7 @@ using static Avalonia.OpenGL.GlConsts;
 
 namespace Avalonia.Cubism.Render
 {
-    public class CubismAvaloniaState
+    class CubismAvaloniaState
     {
         private int LastArrayBufferBinding;
         private int LastElementArrayBufferBinding;
@@ -24,10 +24,12 @@ namespace Avalonia.Cubism.Render
         private int LastFrameBuffer;
         private int[] LastViewport = new int[4];
         private readonly GlInterface GL;
+        private readonly GlInterfaceEx GLex;
 
-        public CubismAvaloniaState(GlInterface gl)
+        public CubismAvaloniaState(GlInterface gl, GlInterfaceEx glex)
         {
             this.GL = gl;
+            this.GLex = glex;
         }
 
         public void SaveState()
@@ -43,20 +45,20 @@ namespace Avalonia.Cubism.Render
             GL.ActiveTexture(GL_TEXTURE0);
             GL.GetIntegerv(GL_TEXTURE_BINDING_2D, out LastTexture0Binding2D);
             
-            GL.GetVertexAttrib(0, GL_VERTEX_ATTRIB_ARRAY_ENABLED, out LastVertexAttribArrayEnabled[0]);
-            GL.GetVertexAttrib(1, GL_VERTEX_ATTRIB_ARRAY_ENABLED, out LastVertexAttribArrayEnabled[1]);
-            GL.GetVertexAttrib(2, GL_VERTEX_ATTRIB_ARRAY_ENABLED, out LastVertexAttribArrayEnabled[2]);
-            GL.GetVertexAttrib(3, GL_VERTEX_ATTRIB_ARRAY_ENABLED, out LastVertexAttribArrayEnabled[3]);
+            GLex.GetVertexAttribiv(0, GL_VERTEX_ATTRIB_ARRAY_ENABLED, out LastVertexAttribArrayEnabled[0]);
+            GLex.GetVertexAttribiv(1, GL_VERTEX_ATTRIB_ARRAY_ENABLED, out LastVertexAttribArrayEnabled[1]);
+            GLex.GetVertexAttribiv(2, GL_VERTEX_ATTRIB_ARRAY_ENABLED, out LastVertexAttribArrayEnabled[2]);
+            GLex.GetVertexAttribiv(3, GL_VERTEX_ATTRIB_ARRAY_ENABLED, out LastVertexAttribArrayEnabled[3]);
 
-            LastScissorTest = GL.IsEnabled(GL_SCISSOR_TEST);
-            LastStencilTest = GL.IsEnabled(GL_STENCIL_TEST);
-            LastDepthTest = GL.IsEnabled(GL_DEPTH_TEST);
-            LastCullFace = GL.IsEnabled(GL_CULL_FACE);
-            LastBlend = GL.IsEnabled(GL_BLEND);
+            LastScissorTest = GLex.IsEnabled(GL_SCISSOR_TEST) != 0;
+            LastStencilTest = GLex.IsEnabled(GL_STENCIL_TEST) != 0;
+            LastDepthTest = GLex.IsEnabled(GL_DEPTH_TEST) != 0;
+            LastCullFace = GLex.IsEnabled(GL_CULL_FACE) != 0;
+            LastBlend = GLex.IsEnabled(GL_BLEND) != 0;
 
             GL.GetIntegerv(GL_FRONT_FACE, out LastFrontFace);
 
-            GL.GetIntegerv(GL_COLOR_WRITEMASK, LastColorMask);
+            GLex.GetIntegerv(GL_COLOR_WRITEMASK, LastColorMask);
             
             GL.GetIntegerv(GL_BLEND_SRC_RGB, out LastBlending[0]);
             GL.GetIntegerv(GL_BLEND_DST_RGB, out LastBlending[1]);
@@ -64,7 +66,7 @@ namespace Avalonia.Cubism.Render
             GL.GetIntegerv(GL_BLEND_DST_ALPHA, out LastBlending[3]);
 
             GL.GetIntegerv(GL_FRAMEBUFFER_BINDING, out LastFrameBuffer);
-            GL.GetIntegerv(GL_VIEWPORT, LastViewport);
+            GLex.GetIntegerv(GL_VIEWPORT, LastViewport);
         }
 
         public void RestoreState()
@@ -82,9 +84,11 @@ namespace Avalonia.Cubism.Render
             SetEnabled(GL_CULL_FACE, LastCullFace);
             SetEnabled(GL_BLEND, LastBlend);
             
-            GL.FrontFace(LastFrontFace);
+            GLex.FrontFace(LastFrontFace);
 
-            GL.ColorMask(LastColorMask[0] != 0, LastColorMask[1] != 0, LastColorMask[2] != 0, LastColorMask[3] != 0);
+            static byte b2b(int v) => (v != 0) ? 1 : 0;
+
+            GLex.ColorMask(b2b(LastColorMask[0]), b2b(LastColorMask[1]), b2b(LastColorMask[2]), b2b(LastColorMask[3]));
 
             GL.BindBuffer(GL_ARRAY_BUFFER, LastArrayBufferBinding);
             GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, LastElementArrayBufferBinding);
@@ -97,7 +101,7 @@ namespace Avalonia.Cubism.Render
 
             GL.ActiveTexture(LastActiveTexture);
             
-            GL.BlendFuncSeparate(LastBlending[0], LastBlending[1], LastBlending[2], LastBlending[3]);
+            GLex.BlendFuncSeparate(LastBlending[0], LastBlending[1], LastBlending[2], LastBlending[3]);
 
             RestoreViewport();
             RestoreFrameBuffer();
@@ -118,7 +122,7 @@ namespace Avalonia.Cubism.Render
             if (enabled)
                 GL.Enable(cap);
             else
-                GL.Disable(cap);
+                GLex.Disable(cap);
         }
 
         private void SetEnabledVertexAttribArray(int index, bool enabled)
@@ -126,9 +130,7 @@ namespace Avalonia.Cubism.Render
             if (enabled)
                 GL.EnableVertexAttribArray(index);
             else
-                GL.DisableVertexAttribArray(index);
+                GLex.DisableVertexAttribArray(index);
         }
-
-
     }
 }
