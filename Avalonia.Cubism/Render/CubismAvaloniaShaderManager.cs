@@ -8,23 +8,23 @@ using System.Runtime.InteropServices;
 
 namespace Avalonia.Cubism.Render
 {
-    public class CubismAvaloniaShaderManager : IDisposable
+    class CubismAvaloniaShaderManager : IDisposable
     {
         private const int MaxErrorLength = 1024;
-        private GLShaderProgram MaskDrawingShader;
-        private GLShaderProgram UnmaskedMeshDrawingShader;
-        private GLShaderProgram MaskedMeshDrawingShader;
-        private GLShaderProgram UnmaskedPremultipliedAlphaMeshDrawingShader;
-        private GLShaderProgram MaskedPremultipliedAlphaMeshDrawingShader;
+        private readonly GLShaderProgram MaskDrawingShader;
+        private readonly GLShaderProgram UnmaskedMeshDrawingShader;
+        private readonly GLShaderProgram MaskedMeshDrawingShader;
+        private readonly GLShaderProgram UnmaskedPremultipliedAlphaMeshDrawingShader;
+        private readonly GLShaderProgram MaskedPremultipliedAlphaMeshDrawingShader;
         private bool disposedValue = false;
 
-        public CubismAvaloniaShaderManager(GlInterface GL, GlVersion glVersion)
+        public CubismAvaloniaShaderManager(GlInterface gl)
         {
-            MaskDrawingShader = new SetupMaskShaderProgram(GL, glVersion);
-            UnmaskedMeshDrawingShader = new UnmaskedShaderProgram(GL, glVersion);
-            MaskedMeshDrawingShader = new MaskedShaderProgram(GL, glVersion);
-            UnmaskedPremultipliedAlphaMeshDrawingShader = new UnmaskedPremultipliedAlphaShaderProgram(GL, glVersion);
-            MaskedPremultipliedAlphaMeshDrawingShader = new MaskedPremultipliedAlphaShaderProgram(GL, glVersion);
+            MaskDrawingShader = new SetupMaskShaderProgram(gl);
+            UnmaskedMeshDrawingShader = new UnmaskedShaderProgram(gl);
+            MaskedMeshDrawingShader = new MaskedShaderProgram(gl);
+            UnmaskedPremultipliedAlphaMeshDrawingShader = new UnmaskedPremultipliedAlphaShaderProgram(gl);
+            MaskedPremultipliedAlphaMeshDrawingShader = new MaskedPremultipliedAlphaShaderProgram(gl);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -78,18 +78,18 @@ namespace Avalonia.Cubism.Render
 
         public unsafe class GLShader : IDisposable
         {
-            private readonly GlInterface GL;
+            private readonly GlInterface gl;
             public readonly int ShaderId;
             private bool disposedValue = false;
 
-            public GLShader(GlInterface GL, int shaderType, string source)
+            public GLShader(GlInterface gl, int shaderType, string source)
             {
                 if (source == null)
                     throw new ArgumentNullException(nameof(source));
 
-                this.GL = GL;
+                this.gl = gl;
 
-                ShaderId = GL.CreateShader(shaderType);
+                ShaderId = gl.CreateShader(shaderType);
                 using (var b = new Utf8Buffer(source))
                 {
                     void*[] pstr = new void*[2];
@@ -98,11 +98,11 @@ namespace Avalonia.Cubism.Render
                     len[0] = b.ByteLen;
                     fixed (void** ppstr = pstr)
                     fixed (long* plen = len)
-                        GL.ShaderSource(ShaderId, 1, (IntPtr)ppstr, (IntPtr)plen);
+                        gl.ShaderSource(ShaderId, 1, (IntPtr)ppstr, (IntPtr)plen);
                 }
-                GL.CompileShader(ShaderId);
+                gl.CompileShader(ShaderId);
                 int compile_succeeded;
-                GL.GetShaderiv(ShaderId, GL_COMPILE_STATUS, &compile_succeeded);
+                gl.GetShaderiv(ShaderId, GL_COMPILE_STATUS, &compile_succeeded);
 
                 if (compile_succeeded == 0)
                 {
@@ -110,7 +110,7 @@ namespace Avalonia.Cubism.Render
                     string log;
                     fixed (byte* pbuf = buf)
                     {
-                        GL.GetShaderInfoLog(ShaderId, MaxErrorLength, out int log_length, pbuf);
+                        gl.GetShaderInfoLog(ShaderId, MaxErrorLength, out int log_length, pbuf);
                         log = Encoding.UTF8.GetString(pbuf, log_length);
                     }
                     throw new InvalidOperationException($"Failed to compile shader : {log}");
@@ -126,7 +126,7 @@ namespace Avalonia.Cubism.Render
             {
                 if (!disposedValue)
                 {
-                    GL.DeleteShader(ShaderId);
+                    gl.DeleteShader(ShaderId);
                     disposedValue = true;
                 }
             }
@@ -139,7 +139,7 @@ namespace Avalonia.Cubism.Render
 
         public unsafe class GLShaderProgram : IDisposable
         {
-            private readonly GlInterface GL;
+            private readonly GlInterface gl;
             private readonly GlVersion GlVersion;
 
             public int ProgramId { get; private set; }
@@ -153,26 +153,26 @@ namespace Avalonia.Cubism.Render
             public int UniformBaseColorLocation { get; protected set; } = -1;
             private bool disposedValue = false;
 
-            private GLShader vertex_shader;
-            private GLShader fragment_shader;
+            private readonly GLShader vertex_shader;
+            private readonly GLShader fragment_shader;
 
-            public GLShaderProgram(GlInterface GL, string vertex_shader_source, string fragment_shader_source, GlVersion glVersion)
+            public GLShaderProgram(GlInterface gl, string vertex_shader_source, string fragment_shader_source)
             {
-                this.GL = GL;
-                this.GlVersion = glVersion;
+                this.gl = gl;
+                this.GlVersion = gl.ContextInfo.Version;
 
                 vertex_shader_source = GetShader(false, vertex_shader_source);
                 fragment_shader_source = GetShader(true, fragment_shader_source);
 
-                vertex_shader = new GLShader(GL, GL_VERTEX_SHADER, vertex_shader_source);
-                fragment_shader = new GLShader(GL, GL_FRAGMENT_SHADER, fragment_shader_source);
+                vertex_shader = new GLShader(gl, GL_VERTEX_SHADER, vertex_shader_source);
+                fragment_shader = new GLShader(gl, GL_FRAGMENT_SHADER, fragment_shader_source);
 
-                ProgramId = GL.CreateProgram();
-                GL.AttachShader(ProgramId, vertex_shader.ShaderId);
-                GL.AttachShader(ProgramId, fragment_shader.ShaderId);
-                GL.LinkProgram(ProgramId);
+                ProgramId = gl.CreateProgram();
+                gl.AttachShader(ProgramId, vertex_shader.ShaderId);
+                gl.AttachShader(ProgramId, fragment_shader.ShaderId);
+                gl.LinkProgram(ProgramId);
                 int link_succeeded;
-                GL.GetProgramiv(ProgramId, GL_LINK_STATUS, &link_succeeded);
+                gl.GetProgramiv(ProgramId, GL_LINK_STATUS, &link_succeeded);
 
                 if (link_succeeded == 0)
                 {
@@ -180,7 +180,7 @@ namespace Avalonia.Cubism.Render
                     string log;
                     fixed (byte* pbuf = buf)
                     {
-                        GL.GetProgramInfoLog(ProgramId, MaxErrorLength, out int log_length, pbuf);
+                        gl.GetProgramInfoLog(ProgramId, MaxErrorLength, out int log_length, pbuf);
                         log = Encoding.UTF8.GetString(pbuf, log_length);
                     }
                     throw new InvalidOperationException($"Failed to link program : {log}");
@@ -195,7 +195,7 @@ namespace Avalonia.Cubism.Render
 
             public int AttributeLocation(string attribute_name)
             {
-                int location = GL.GetAttribLocationString(ProgramId, attribute_name);
+                int location = gl.GetAttribLocationString(ProgramId, attribute_name);
                 if (location < 0)
                     throw new InvalidOperationException($"No attribute {attribute_name}");
 
@@ -204,7 +204,7 @@ namespace Avalonia.Cubism.Render
 
             public int UniformLocation(string uniform_name)
             {
-                int location = GL.GetUniformLocationString(ProgramId, uniform_name);
+                int location = gl.GetUniformLocationString(ProgramId, uniform_name);
                 if (location < 0)
                     throw new InvalidOperationException($"No uniform {uniform_name}");
 
@@ -215,7 +215,7 @@ namespace Avalonia.Cubism.Render
             {
                 if (!disposedValue)
                 {
-                    GL.DeleteProgram(ProgramId);
+                    gl.DeleteProgram(ProgramId);
                     ProgramId = 0;
                     vertex_shader.Dispose();
                     fragment_shader.Dispose();
@@ -256,7 +256,7 @@ namespace Avalonia.Cubism.Render
 
         public class SetupMaskShaderProgram : GLShaderProgram
         {
-            private static string VertexShaderSource = @"
+            private static readonly string VertexShaderSource = @"
             attribute vec4 a_position;
             attribute vec2 a_texCoord;
             varying vec2 v_texCoord;
@@ -269,7 +269,7 @@ namespace Avalonia.Cubism.Render
                 v_texCoord.y = 1.0 - v_texCoord.y;
             }";
 
-            private static string FragmentShaderSource = @"
+            private static readonly string FragmentShaderSource = @"
             varying vec2 v_texCoord;
             varying vec4 v_myPos;
             uniform sampler2D s_texture0;
@@ -284,8 +284,8 @@ namespace Avalonia.Cubism.Render
                 gl_FragColor = u_channelFlag * texture2D(s_texture0 , v_texCoord).a * isInside;
             }";
 
-            public SetupMaskShaderProgram(GlInterface GL, GlVersion glVersion)
-                : base(GL, VertexShaderSource, FragmentShaderSource, glVersion)
+            public SetupMaskShaderProgram(GlInterface gl)
+                : base(gl, VertexShaderSource, FragmentShaderSource)
             {
                 AttributePositionLocation = AttributeLocation("a_position");
                 AttributeTexCoordLocation = AttributeLocation("a_texCoord");
@@ -298,7 +298,7 @@ namespace Avalonia.Cubism.Render
 
         public class UnmaskedShaderProgram : GLShaderProgram
         {
-            private static string VertexShaderSource = @"
+            private static readonly string VertexShaderSource = @"
             attribute vec4 a_position;
             attribute vec2 a_texCoord;
             varying vec2 v_texCoord;
@@ -309,7 +309,7 @@ namespace Avalonia.Cubism.Render
                 v_texCoord.y = 1.0 - v_texCoord.y;
             }";
 
-            private static string FragmentShaderSource = @"
+            private static readonly string FragmentShaderSource = @"
             varying vec2 v_texCoord;
             uniform sampler2D s_texture0;
             uniform vec4 u_baseColor;
@@ -318,8 +318,8 @@ namespace Avalonia.Cubism.Render
                 gl_FragColor = vec4(color.rgb * color.a,  color.a);
             }";
 
-            public UnmaskedShaderProgram(GlInterface GL, GlVersion glVersion)
-                : base(GL, VertexShaderSource, FragmentShaderSource, glVersion)
+            public UnmaskedShaderProgram(GlInterface gl)
+                : base(gl, VertexShaderSource, FragmentShaderSource)
             {
                 AttributePositionLocation = AttributeLocation("a_position");
                 AttributeTexCoordLocation = AttributeLocation("a_texCoord");
@@ -331,7 +331,7 @@ namespace Avalonia.Cubism.Render
 
         public class MaskedShaderProgram : GLShaderProgram
         {
-            private static string VertexShaderSource = @"
+            private static readonly string VertexShaderSource = @"
             attribute vec4 a_position;
             attribute vec2 a_texCoord;
             varying vec2 v_texCoord;
@@ -345,7 +345,7 @@ namespace Avalonia.Cubism.Render
                 v_texCoord.y = 1.0 - v_texCoord.y;
             }";
 
-            private static string FragmentShaderSource = @"
+            private static readonly string FragmentShaderSource = @"
             varying vec2 v_texCoord;
             varying vec4 v_clipPos;
             uniform sampler2D s_texture0;
@@ -361,8 +361,8 @@ namespace Avalonia.Cubism.Render
                 gl_FragColor = col_formask;
             }";
 
-            public MaskedShaderProgram(GlInterface GL, GlVersion glVersion)
-                : base(GL, VertexShaderSource, FragmentShaderSource, glVersion)
+            public MaskedShaderProgram(GlInterface gl)
+                : base(gl, VertexShaderSource, FragmentShaderSource)
             {
                 AttributePositionLocation = AttributeLocation("a_position");
                 AttributeTexCoordLocation = AttributeLocation("a_texCoord");
@@ -377,7 +377,7 @@ namespace Avalonia.Cubism.Render
 
         public class UnmaskedPremultipliedAlphaShaderProgram : GLShaderProgram
         {
-            private static string VertexShaderSource = @"
+            private static readonly string VertexShaderSource = @"
             attribute vec4 a_position;
             attribute vec2 a_texCoord;
             varying vec2 v_texCoord;
@@ -389,7 +389,7 @@ namespace Avalonia.Cubism.Render
             }
             ";
 
-            private static string FragmentShaderSource = @"
+            private static readonly string FragmentShaderSource = @"
             varying vec2 v_texCoord;
             uniform sampler2D s_texture0;
             uniform vec4 u_baseColor;
@@ -398,8 +398,8 @@ namespace Avalonia.Cubism.Render
             }
             ";
 
-            public UnmaskedPremultipliedAlphaShaderProgram(GlInterface GL, GlVersion glVersion)
-                : base(GL, VertexShaderSource, FragmentShaderSource, glVersion)
+            public UnmaskedPremultipliedAlphaShaderProgram(GlInterface gl)
+                : base(gl, VertexShaderSource, FragmentShaderSource)
             {
                 AttributePositionLocation = AttributeLocation("a_position");
                 AttributeTexCoordLocation = AttributeLocation("a_texCoord");
@@ -411,7 +411,7 @@ namespace Avalonia.Cubism.Render
 
         public class MaskedPremultipliedAlphaShaderProgram : GLShaderProgram
         {
-            private static string VertexShaderSource = @"
+            private static readonly string VertexShaderSource = @"
             attribute vec4 a_position;
             attribute vec2 a_texCoord;
             varying vec2 v_texCoord;
@@ -426,7 +426,7 @@ namespace Avalonia.Cubism.Render
             }
             ";
 
-            private static string FragmentShaderSource = @"
+            private static readonly string FragmentShaderSource = @"
             varying vec2 v_texCoord;
             varying vec4 v_clipPos;
             uniform sampler2D s_texture0;
@@ -441,8 +441,8 @@ namespace Avalonia.Cubism.Render
                 gl_FragColor = col_formask;
             }";
 
-            public MaskedPremultipliedAlphaShaderProgram(GlInterface GL, GlVersion glVersion)
-                : base(GL, VertexShaderSource, FragmentShaderSource, glVersion)
+            public MaskedPremultipliedAlphaShaderProgram(GlInterface gl)
+                : base(gl, VertexShaderSource, FragmentShaderSource)
             {
                 AttributePositionLocation = AttributeLocation("a_position");
                 AttributeTexCoordLocation = AttributeLocation("a_texCoord");

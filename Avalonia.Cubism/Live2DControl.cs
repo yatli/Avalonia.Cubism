@@ -19,13 +19,12 @@ namespace Avalonia.Cubism
     {
         private Stopwatch m_time = new Stopwatch();
 
-        private CubismAsset m_asset = null;
+        private CubismAsset m_asset;
         private CubismAvaloniaRenderer m_renderer;
         private CubismRenderingManager m_rendermgr;
         private CubismMotionQueueEntry m_lastmotion;
 
-        private GlInterface m_gl;
-        private GlInterfaceEx m_glex;
+        private GlInterfaceEx m_gl;
         private unsafe GlDebugProc m_debugProc;
         private int[] m_vao;
 
@@ -79,7 +78,7 @@ namespace Avalonia.Cubism
                 return;
             }
 
-            m_renderer = new CubismAvaloniaRenderer(m_gl, m_glex, GlVersion);
+            m_renderer = new CubismAvaloniaRenderer(m_gl);
             m_rendermgr = new CubismRenderingManager(m_renderer, m_asset);
 
             // !must be configured so for Avalonia
@@ -89,23 +88,21 @@ namespace Avalonia.Cubism
         private static unsafe void OnGlDebugMessage(int src, int ty, int id, int sev, int len, byte* msg, void* userparam)
         {
             var str = UTF8Encoding.UTF8.GetString(msg, len);
-            Console.WriteLine($"GlDbg: {str}");
         }
 
         protected unsafe override void OnOpenGlInit(GlInterface gl, int fb)
         {
-            m_gl = gl;
-            m_glex = new GlInterfaceEx(gl);
+            m_gl = new GlInterfaceEx(gl);
 
             // hook up debug handler
             //m_debugProc = OnGlDebugMessage;
             //gl.Enable(GL_DEBUG_OUTPUT);
-            //m_glex.DebugMessageCallback(m_debugProc, null);
+            //m_gl.DebugMessageCallback(m_debugProc, null);
 
             // allocate vertex array object (VAO)
             m_vao = new int[1];
-            m_glex.GenVertexArrays(1, m_vao);
-            m_glex.BindVertexArray(m_vao[0]);
+            m_gl.GenVertexArrays(1, m_vao);
+            m_gl.BindVertexArray(m_vao[0]);
 
             // initialize Cubism renderer
             TryUpdateRenderer();
@@ -115,12 +112,11 @@ namespace Avalonia.Cubism
         protected override void OnOpenGlDeinit(GlInterface gl, int fb)
         {
             DisposeRenderer();
-            m_glex.BindVertexArray(0);
-            //m_glex.DeleteVertexArrays(m_vao[0]);
+            m_gl.BindVertexArray(0);
+            m_gl.DeleteVertexArrays(1, m_vao);
 
             m_vao = null;
             m_gl = null;
-            m_glex = null;
         }
 
         protected override void OnOpenGlRender(GlInterface gl, int fb)

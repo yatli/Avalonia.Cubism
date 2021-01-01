@@ -8,13 +8,12 @@ using System.Runtime.CompilerServices;
 
 namespace Avalonia.Cubism
 {
-    public delegate void GlGetIntegerv(int name, int[] rv);
+    public delegate void GlGetIntegerva(int name, int[] rv);
     public delegate void GlBlendFuncSeparate(int srcRGB, int dstRGB, int srcAlpha, int dstAlpha);
     public delegate void GlDisable(int cap);
     public delegate void GlFrontFace(int cap);
     public delegate void GlColorMask(byte r, byte g, byte b, byte a);
     public delegate void GlUniform4f(int location, float x, float y, float z, float w);
-    public unsafe delegate void GlUniformMatrix4fv(int location, int count, byte transpose, float* p);
     public delegate byte GlIsEnabled(int cap);
     public delegate void GlGetVertexAttribiv(int idx, int name, out int value);
     public delegate void GlDisableVertexAttribArray(int idx);
@@ -24,18 +23,18 @@ namespace Avalonia.Cubism
     public unsafe delegate void GlDebugMessageCallback(GlDebugProc callback, void* userparam);
     public delegate void GlGenVertexArrays(int n, int[] rv);
     public delegate void GlBindVertexArray(int array);
+    public delegate void GlDeleteVertexArrays(int size, int[] rv);
 
-    unsafe class GlInterfaceEx
+    unsafe class GlInterfaceEx : GlInterface
     {
-        public GlInterfaceEx(GlInterface GL)
+        public GlInterfaceEx(GlInterface GL): base(GL.ContextInfo.Version, GL.GetProcAddress)
         {
-            GetIntegerv = GL.GetProcAddress<GlGetIntegerv>("glGetIntegerv");
+            GetIntegerva = GL.GetProcAddress<GlGetIntegerva>("glGetIntegerv");
             BlendFuncSeparate = GL.GetProcAddress<GlBlendFuncSeparate>("glBlendFuncSeparate");
             Disable = GL.GetProcAddress<GlDisable>("glDisable");
             FrontFace = GL.GetProcAddress<GlFrontFace>("glFrontFace");
             ColorMask = GL.GetProcAddress<GlColorMask>("glColorMask");
             Uniform4f = GL.GetProcAddress<GlUniform4f>("glUniform4f");
-            UniformMatrix4fv = GL.GetProcAddress<GlUniformMatrix4fv>("glUniformMatrix4fv");
             IsEnabled = GL.GetProcAddress<GlIsEnabled>("glIsEnabled");
             GetVertexAttribiv = GL.GetProcAddress<GlGetVertexAttribiv>("glGetVertexAttribiv");
             DisableVertexAttribArray = GL.GetProcAddress<GlDisableVertexAttribArray>("glDisableVertexAttribArray");
@@ -44,15 +43,16 @@ namespace Avalonia.Cubism
             DebugMessageCallback = GL.GetProcAddress<GlDebugMessageCallback>("glDebugMessageCallback");
             GenVertexArrays = GL.GetProcAddress<GlGenVertexArrays>("glGenVertexArrays");
             BindVertexArray = GL.GetProcAddress<GlBindVertexArray>("glBindVertexArray");
+            DeleteVertexArrays = GL.GetProcAddress<GlDeleteVertexArrays>("glDeleteVertexArrays");
         }
 
-        public GlGetIntegerv GetIntegerv { get; }
+        // https://github.com/AvaloniaUI/Avalonia/blob/c85fa2b9977d251a31886c2534613b4730fbaeaf/samples/ControlCatalog/Pages/OpenGlPage.xaml.cs#L381
+        public GlGetIntegerva GetIntegerva { get; }
         public GlBlendFuncSeparate BlendFuncSeparate { get; }
         public GlDisable Disable { get; }
         public GlFrontFace FrontFace { get; }
         public GlColorMask ColorMask { get; }
         public GlUniform4f Uniform4f { get; }
-        public GlUniformMatrix4fv UniformMatrix4fv { get; }
         public GlIsEnabled IsEnabled { get; }
         public GlGetVertexAttribiv GetVertexAttribiv { get; }
         public GlDisableVertexAttribArray DisableVertexAttribArray {get; }
@@ -61,6 +61,8 @@ namespace Avalonia.Cubism
         public GlDebugMessageCallback DebugMessageCallback { get; }
         public GlGenVertexArrays GenVertexArrays { get; }
         public GlBindVertexArray BindVertexArray { get; }
+        public GlDeleteVertexArrays DeleteVertexArrays { get; }
+
     }
     public static class GlInterfaceExtension
     {
