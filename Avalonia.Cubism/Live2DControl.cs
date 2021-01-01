@@ -20,7 +20,7 @@ namespace Avalonia.Cubism
         private Stopwatch m_time = new Stopwatch();
 
         private CubismAsset m_asset = null;
-        private ICubismRenderer m_renderer;
+        private CubismAvaloniaRenderer m_renderer;
         private CubismRenderingManager m_rendermgr;
         private CubismMotionQueueEntry m_lastmotion;
 
@@ -57,7 +57,11 @@ namespace Avalonia.Cubism
                 m_rendermgr.Dispose();
                 m_rendermgr = null;
             }
-            m_renderer = null;
+            if (m_renderer != null)
+            {
+                m_renderer.Dispose();
+                m_renderer = null;
+            }
         }
 
         private void TryUpdateRenderer()
@@ -77,6 +81,9 @@ namespace Avalonia.Cubism
 
             m_renderer = new CubismAvaloniaRenderer(m_gl, m_glex, GlVersion);
             m_rendermgr = new CubismRenderingManager(m_renderer, m_asset);
+
+            // !must be configured so for Avalonia
+            m_renderer.UsePremultipliedAlpha = true;
         }
 
         private static unsafe void OnGlDebugMessage(int src, int ty, int id, int sev, int len, byte* msg, void* userparam)
@@ -91,9 +98,9 @@ namespace Avalonia.Cubism
             m_glex = new GlInterfaceEx(gl);
 
             // hook up debug handler
-            m_debugProc = OnGlDebugMessage;
-            gl.Enable(GL_DEBUG_OUTPUT);
-            m_glex.DebugMessageCallback(m_debugProc , null);
+            //m_debugProc = OnGlDebugMessage;
+            //gl.Enable(GL_DEBUG_OUTPUT);
+            //m_glex.DebugMessageCallback(m_debugProc, null);
 
             // allocate vertex array object (VAO)
             m_vao = new int[1];
@@ -108,7 +115,12 @@ namespace Avalonia.Cubism
         protected override void OnOpenGlDeinit(GlInterface gl, int fb)
         {
             DisposeRenderer();
+            m_glex.BindVertexArray(0);
+            //m_glex.DeleteVertexArrays(m_vao[0]);
+
+            m_vao = null;
             m_gl = null;
+            m_glex = null;
         }
 
         protected override void OnOpenGlRender(GlInterface gl, int fb)
@@ -123,16 +135,25 @@ namespace Avalonia.Cubism
 
             Asset.Update(m_time.ElapsedMilliseconds / 1000.0);
             m_time.Restart();
-            double scale = VisualRoot.RenderScaling;
-            int w = (int)(Bounds.Width * scale);
-            int h = (int)(Bounds.Height * scale);
+            double controlScaling = VisualRoot.RenderScaling;
+            int w = (int)(Bounds.Width * controlScaling);
+            int h = (int)(Bounds.Height * controlScaling);
+            double r = Math.Sqrt(((float)w) / h);
 
             gl.Viewport(0, 0, w, h);
             gl.Clear(GL_COLOR_BUFFER_BIT);
 
             Matrix4x4 mvp_matrix = Matrix4x4.Identity;
-            mvp_matrix.M11 = 2.0f;
-            mvp_matrix.M22 = 2.0f * w / h;
+            if (h >= w)
+            {
+                mvp_matrix.M11 = 1.5f;
+                mvp_matrix.M22 = -1.5f * w / h;
+            }
+            else
+            {
+                mvp_matrix.M11 = 1.5f * h / w;
+                mvp_matrix.M22 = -1.5f;
+            }
 
             m_rendermgr.Draw(mvp_matrix);
 

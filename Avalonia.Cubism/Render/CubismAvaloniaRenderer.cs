@@ -22,8 +22,10 @@ namespace Avalonia.Cubism.Render
         private static float[] DefaultModelColor = new float[4] { 1.0f, 1.0f, 1.0f, 1.0f };
         private CubismAvaloniaState State;
         private CubismAvaloniaShaderManager ShaderManager;
-        private int m_vertexbuf;
-        private int m_uvbuf;
+        private int m_maskVertexBuf;
+        private int m_maskUvBuf;
+        private int m_meshVertexBuf;
+        private int m_meshUvBuf;
         private List<CubismAvaloniaClippingMask> ClippingMasks = new List<CubismAvaloniaClippingMask>();
         private List<CubismAvaloniaTexture> Textures = new List<CubismAvaloniaTexture>();
         private bool disposedValue = false;
@@ -70,8 +72,10 @@ namespace Avalonia.Cubism.Render
             ShaderManager = new CubismAvaloniaShaderManager(gl, glVersion);
 
             // create some buffer objects
-            m_vertexbuf = GL.GenBuffer();
-            m_uvbuf = GL.GenBuffer();
+            m_maskVertexBuf = GL.GenBuffer();
+            m_maskUvBuf = GL.GenBuffer();
+            m_meshVertexBuf = GL.GenBuffer();
+            m_meshUvBuf = GL.GenBuffer();
             Console.WriteLine("CubismAvaloniaRenderer: initialized");
         }
 
@@ -92,6 +96,7 @@ namespace Avalonia.Cubism.Render
                 {
                     texture.Dispose();
                 }
+                // TODO unbind, then delete the buffers
                 ShaderManager.Dispose();
                 disposedValue = true;
             }
@@ -183,17 +188,17 @@ namespace Avalonia.Cubism.Render
             GL.BindTexture(GL_TEXTURE_2D, texture.TextureId);
             GLex.Uniform1i(shader.SamplerTexture0Location, 0);
 
-            GL.BindBuffer(GL_ARRAY_BUFFER, m_vertexbuf);
+            GL.EnableVertexAttribArray(shader.AttributePositionLocation);
+            GL.BindBuffer(GL_ARRAY_BUFFER, m_maskVertexBuf);
             fixed (float* ptr = vertex_buffer)
                 GL.BufferData(GL_ARRAY_BUFFER, (IntPtr)(sizeof(float) * vertex_buffer.Length), (IntPtr)ptr, GL_STATIC_DRAW);
             GL.VertexAttribPointer(shader.AttributePositionLocation, 2, GL_FLOAT, 0, sizeof(float)*2, IntPtr.Zero);
-            GL.EnableVertexAttribArray(shader.AttributePositionLocation);
 
-            GL.BindBuffer(GL_ARRAY_BUFFER, m_uvbuf);
+            GL.EnableVertexAttribArray(shader.AttributeTexCoordLocation);
+            GL.BindBuffer(GL_ARRAY_BUFFER, m_maskUvBuf);
             fixed (float* ptr = uv_buffer)
                 GL.BufferData(GL_ARRAY_BUFFER, (IntPtr)(sizeof(float) * uv_buffer.Length), (IntPtr)ptr, GL_STATIC_DRAW);
             GL.VertexAttribPointer(shader.AttributeTexCoordLocation, 2, GL_FLOAT, 0, 0, IntPtr.Zero);
-            GL.EnableVertexAttribArray(shader.AttributeTexCoordLocation);
 
             GLex.Uniform4f(shader.UnifromChannelFlagLocation, 1.0f, 0.0f, 0.0f, 0.0f);
             Matrix4x4* p = &clipping_matrix;
@@ -222,17 +227,17 @@ namespace Avalonia.Cubism.Render
             var shader = ShaderManager.ShaderForDrawMesh(use_clipping_mask, UsePremultipliedAlpha);
             GL.UseProgram(shader.ProgramId);
 
-            GL.BindBuffer(GL_ARRAY_BUFFER, m_vertexbuf);
+            GL.EnableVertexAttribArray(shader.AttributePositionLocation);
+            GL.BindBuffer(GL_ARRAY_BUFFER, m_meshVertexBuf);
             fixed (float* ptr = vertex_buffer)
                 GL.BufferData(GL_ARRAY_BUFFER, (IntPtr)(sizeof(float) * vertex_buffer.Length), (IntPtr)ptr, GL_STATIC_DRAW);
             GL.VertexAttribPointer(shader.AttributePositionLocation, 2, GL_FLOAT, 0, sizeof(float)*2, IntPtr.Zero);
-            GL.EnableVertexAttribArray(shader.AttributePositionLocation);
 
-            GL.BindBuffer(GL_ARRAY_BUFFER, m_uvbuf);
+            GL.EnableVertexAttribArray(shader.AttributeTexCoordLocation);
+            GL.BindBuffer(GL_ARRAY_BUFFER, m_meshUvBuf);
             fixed (float* ptr = uv_buffer)
                 GL.BufferData(GL_ARRAY_BUFFER, (IntPtr)(sizeof(float) * uv_buffer.Length), (IntPtr)ptr, GL_STATIC_DRAW);
             GL.VertexAttribPointer(shader.AttributeTexCoordLocation, 2, GL_FLOAT, 0, 0, IntPtr.Zero);
-            GL.EnableVertexAttribArray(shader.AttributeTexCoordLocation);
 
 
             if (use_clipping_mask == true)
