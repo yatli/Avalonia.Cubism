@@ -45,13 +45,7 @@ namespace TestForms
         {
             GL.ClearColor(0.0f, 0.5f, 0.5f, 1.0f);
 
-            Asset = new CubismAsset(@"hiyori_free_t06.model3.json", (string file_path) =>
-            {
-                string resource_name = Path.GetFileNameWithoutExtension(file_path).Replace('.', '_');
-                byte[] byte_array = (byte[])Hiyori.ResourceManager.GetObject(resource_name);
-                return new MemoryStream(byte_array);
-            });
-
+            Asset = new CubismAsset(@"C:\Users\Yatao\Downloads\TouhouCannonballDump\Live2D\Reimu\object_live2d_001_101.asset\object_live2d_001_101.asset.model3.json");
             var eye_blink_controller = new CubismEyeBlink(Asset.ParameterGroups["EyeBlink"]);
             Asset.StartMotion(MotionType.Effect, eye_blink_controller);
 

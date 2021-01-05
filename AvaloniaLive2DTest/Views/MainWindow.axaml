@@ -13,5 +13,7 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-  <live2d:Live2DControl x:Name="Live2D"/>
+						<!--Asset="avares://AvaloniaLive2DTest/Assets/Live2D/hiyori_free_t06.model3.json"-->
+  <live2d:Live2DControl x:Name="Live2D" 
+						/>
 </Window>

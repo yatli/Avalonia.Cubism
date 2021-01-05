@@ -13,6 +13,6 @@
     <PackageReference Include="ppy.osu.Framework" Version="2020.1214.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CubismFramework\CubismFramework.csproj" />
+    <ProjectReference Include="..\Avalonia.Cubism\Avalonia.Cubism.csproj" />
   </ItemGroup>
 </Project>

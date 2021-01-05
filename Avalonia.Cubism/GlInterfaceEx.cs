@@ -24,6 +24,7 @@ namespace Avalonia.Cubism
     public delegate void GlGenVertexArrays(int n, int[] rv);
     public delegate void GlBindVertexArray(int array);
     public delegate void GlDeleteVertexArrays(int size, int[] rv);
+    public delegate void GlPolygonMode(int target, int mode);
 
     unsafe class GlInterfaceEx : GlInterface
     {
@@ -44,6 +45,7 @@ namespace Avalonia.Cubism
             GenVertexArrays = GL.GetProcAddress<GlGenVertexArrays>("glGenVertexArrays");
             BindVertexArray = GL.GetProcAddress<GlBindVertexArray>("glBindVertexArray");
             DeleteVertexArrays = GL.GetProcAddress<GlDeleteVertexArrays>("glDeleteVertexArrays");
+            PolygonMode = GL.GetProcAddress<GlPolygonMode>("glPolygonMode");
         }
 
         // https://github.com/AvaloniaUI/Avalonia/blob/c85fa2b9977d251a31886c2534613b4730fbaeaf/samples/ControlCatalog/Pages/OpenGlPage.xaml.cs#L381
@@ -62,6 +64,7 @@ namespace Avalonia.Cubism
         public GlGenVertexArrays GenVertexArrays { get; }
         public GlBindVertexArray BindVertexArray { get; }
         public GlDeleteVertexArrays DeleteVertexArrays { get; }
+        public GlPolygonMode PolygonMode { get; }
 
     }
     public static class GlInterfaceExtension

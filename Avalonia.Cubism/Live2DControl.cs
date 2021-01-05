@@ -17,36 +17,50 @@ namespace Avalonia.Cubism
 {
     public class Live2DControl : OpenGlControlBase
     {
+        #region Dependent Properties
+        public static readonly StyledProperty<CubismAsset> AssetProperty = AvaloniaProperty.Register<Live2DControl, CubismAsset>("Asset");
+        public static readonly StyledProperty<double> ScaleProperty = AvaloniaProperty.Register<Live2DControl, double>("Scale");
+        #endregion
+
+        static Live2DControl()
+        {
+            AffectsRender<Live2DControl>(AssetProperty);
+            AffectsRender<Live2DControl>(ScaleProperty);
+        }
+
         private Stopwatch m_time = new Stopwatch();
 
-        private CubismAsset m_asset;
         private CubismAvaloniaRenderer m_renderer;
         private CubismRenderingManager m_rendermgr;
         private CubismMotionQueueEntry m_lastmotion;
 
         private GlInterfaceEx m_gl;
-        private unsafe GlDebugProc m_debugProc;
+        //private unsafe GlDebugProc m_debugProc;
         private int[] m_vao;
 
         private void UpdateAsset(CubismAsset asset)
         {
             DisposeRenderer();
-            if (m_asset != null)
+            var old_asset = Asset;
+            if (old_asset != null)
             {
-                m_asset.Dispose();
-                m_asset = null;
+                old_asset.Dispose();
             }
 
             if (asset == null)
             {
+                SetValue(AssetProperty, null);
                 return;
             }
+            else
+            {
+                var eye_blink_controller = new CubismEyeBlink(asset.ParameterGroups["EyeBlink"]);
+                asset.StartMotion(MotionType.Effect, eye_blink_controller);
 
-            m_asset = asset;
-            var eye_blink_controller = new CubismEyeBlink(m_asset.ParameterGroups["EyeBlink"]);
-            m_asset.StartMotion(MotionType.Effect, eye_blink_controller);
+                TryUpdateRenderer();
+                SetValue(AssetProperty, asset);
+            }
 
-            TryUpdateRenderer();
         }
 
         private void DisposeRenderer()
@@ -65,7 +79,8 @@ namespace Avalonia.Cubism
 
         private void TryUpdateRenderer()
         {
-            if (m_asset == null)
+            var asset = GetValue(AssetProperty);
+            if (asset == null)
             {
                 return;
             }
@@ -79,7 +94,7 @@ namespace Avalonia.Cubism
             }
 
             m_renderer = new CubismAvaloniaRenderer(m_gl);
-            m_rendermgr = new CubismRenderingManager(m_renderer, m_asset);
+            m_rendermgr = new CubismRenderingManager(m_renderer, asset);
 
             // !must be configured so for Avalonia
             m_renderer.UsePremultipliedAlpha = true;
@@ -121,6 +136,11 @@ namespace Avalonia.Cubism
 
         protected override void OnOpenGlRender(GlInterface gl, int fb)
         {
+            if (Asset == null)
+            {
+                return;
+            }
+
             if ((m_lastmotion == null) || (m_lastmotion.Finished == true))
             {
                 var motion_group = Asset.MotionGroups[""];
@@ -158,7 +178,7 @@ namespace Avalonia.Cubism
 
         public CubismAsset Asset
         {
-            get => m_asset;
+            get => GetValue<CubismAsset>(AssetProperty);
             set => UpdateAsset(value);
         }
 

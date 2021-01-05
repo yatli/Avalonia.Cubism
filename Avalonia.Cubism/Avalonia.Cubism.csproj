@@ -22,7 +22,26 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CubismFramework\CubismFramework.csproj" />
+    <Content Include="..\dll\windows\x86_64\Live2DCubismCore.dll">
+      <PackagePath>runtimes\win-x64\native</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\dll\windows\x86_64\Live2DCubismCore.lib">
+      <PackagePath>runtimes\win-x64\native</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\dll\linux\x86_64\libLive2DCubismCore.so">
+      <PackagePath>runtimes\linux-x64\native</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\dll\macos\libLive2DCubismCore.dylib">
+      <PackagePath>runtimes\osx-x64\native</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\dll\macos\Live2DCubismCore.bundle">
+      <PackagePath>runtimes\osx-x64\native</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

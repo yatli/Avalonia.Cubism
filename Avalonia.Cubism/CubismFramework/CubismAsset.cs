@@ -1,6 +1,10 @@
-﻿using System;
+﻿using Avalonia;
+using Avalonia.Platform;
+
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace CubismFramework
 {
@@ -11,9 +15,40 @@ namespace CubismFramework
     /// <param name="file_path">読み込むファイルパス</param>
     /// <returns>ファイルのストリーム。ファイルを開けなかった場合はnullを返す。</returns>
     public delegate Stream CubismFileLoader(string file_path);
-    
+
     public class CubismAsset : IDisposable
     {
+        public static implicit operator CubismAsset(string s)
+        {
+            return new CubismAsset(s);
+        }
+
+        public CubismAsset(string uri)
+        {
+            var low = uri.ToLower();
+            if (low.StartsWith("avares://"))
+            {
+                // load as avalonia resource
+                var filename = Path.GetFileName(uri);
+                var baseuri = uri.Substring(0, uri.Length - filename.Length);
+                var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
+                LoadModel(filename, fname => assets.Open(new Uri($"{baseuri}{fname}")));
+            }
+            else if (low.StartsWith("pack://"))
+            {
+                // TODO pack URI, see: https://docs.microsoft.com/en-us/dotnet/desktop/wpf/app-development/pack-uris-in-wpf?view=netframeworkdesktop-4.8
+                throw new NotImplementedException();
+            }
+            else
+            {
+                // load as file
+                var filename = Path.GetFileName(uri);
+                var filedir = Path.GetDirectoryName(uri);
+                LoadModel(filename, fname => File.OpenRead(Path.Combine(filedir, fname)));
+            }
+
+        }
+
         /// <summary>
         /// アセットを読み込む。
         /// </summary>
@@ -22,8 +57,13 @@ namespace CubismFramework
         /// <returns>trueなら読み込みが成功したことを示す。</returns>
         public CubismAsset(string model_file_path, CubismFileLoader reader)
         {
+            LoadModel(model_file_path, reader);
+        }
+
+        private void LoadModel(string model_file_path, CubismFileLoader reader)
+        {
             var model_setting = CubismModelSettingJson.Create(reader(model_file_path));
-            
+
             // mocファイルを読み込み、CubismModelを作成する
             using (Stream stream = reader(model_setting.FileReferences.Moc))
             {
@@ -89,7 +129,7 @@ namespace CubismFramework
                     MotionGroups.Add(group_name, motion_group.ToArray());
                 }
             }
-            
+
             // 表情モーションを読み込む
             Expressions = new Dictionary<string, ICubismMotion>();
             if (model_setting.FileReferences.Expressions != null)
@@ -107,7 +147,7 @@ namespace CubismFramework
                     }
                 }
             }
-            
+
             // ユーザーデータを読み込む
             UserData = new CubismUserData();
             if (string.IsNullOrEmpty(model_setting.FileReferences.UserData) == false)
@@ -117,7 +157,7 @@ namespace CubismFramework
                     UserData = new CubismUserData(stream);
                 }
             }
-            
+
             // ヒットエリアを読み込む
             HitAreas = new Dictionary<string, CubismDrawable>();
             if (model_setting.HitAreas != null)
@@ -141,7 +181,7 @@ namespace CubismFramework
                     byte[] buffer = new byte[stream.Length];
                     stream.Read(buffer, 0, buffer.Length);
                     TextureByteArrays[index] = buffer;
-                } 
+                }
             }
 
             // 物理演算データを読み込む
@@ -247,17 +287,17 @@ namespace CubismFramework
         {
             switch (type)
             {
-            case MotionType.Base:
-                return BaseMotionManager.StartMotion(motion, loop_enabled);
+                case MotionType.Base:
+                    return BaseMotionManager.StartMotion(motion, loop_enabled);
 
-            case MotionType.Expression:
-                return ExpressionMotionManager.StartMotion(motion, loop_enabled);
+                case MotionType.Expression:
+                    return ExpressionMotionManager.StartMotion(motion, loop_enabled);
 
-            case MotionType.Effect:
-                return EffectMotionManager.StartMotion(motion, loop_enabled);
+                case MotionType.Effect:
+                    return EffectMotionManager.StartMotion(motion, loop_enabled);
 
-            default:
-                return null;
+                default:
+                    return null;
             }
         }
 
@@ -276,7 +316,7 @@ namespace CubismFramework
             {
                 throw new ArgumentException();
             }
-            
+
             // モーションを更新する
             // ベースモーションの更新後は、次の更新のために表情やエフェクトの影響を受ける前のパラメータを保存しておく
             Model.RestoreSavedParameters();
@@ -284,7 +324,7 @@ namespace CubismFramework
             Model.SaveParameters();
             ExpressionMotionManager.Update(elapsed_seconds);
             EffectMotionManager.Update(elapsed_seconds);
-            
+
             if (PoseController != null)
             {
                 PoseController.UpdateParameters(elapsed_seconds);
@@ -316,7 +356,7 @@ namespace CubismFramework
         }
 
 
-        
+
 
 
 
@@ -386,12 +426,12 @@ namespace CubismFramework
         /// テクスチャファイルのバイト配列のリスト
         /// </summary>
         internal byte[][] TextureByteArrays;
-        
+
         /// <summary>
         /// モデル行列
         /// </summary>
         private CubismModelMatrix ModelMatrix;
-        
+
         /// <summary>
         /// モデルの色。
         /// RGBAの4つの要素からなる配列。

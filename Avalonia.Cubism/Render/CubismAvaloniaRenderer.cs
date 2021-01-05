@@ -35,17 +35,17 @@ namespace Avalonia.Cubism.Render
             {
                 switch (value)
                 {
-                case BlendModeType.Normal:
-                    gl.BlendFuncSeparate(/*GL_ONE*/1, GL_ONE_MINUS_SRC_ALPHA, /*BlendingFactorSrc.One*/ 1, GL_ONE_MINUS_SRC_ALPHA);
-                    break;
+                    case BlendModeType.Normal:
+                        gl.BlendFuncSeparate(/*GL_ONE*/1, GL_ONE_MINUS_SRC_ALPHA, /*BlendingFactorSrc.One*/ 1, GL_ONE_MINUS_SRC_ALPHA);
+                        break;
 
-                case BlendModeType.Add:
-                    gl.BlendFuncSeparate(/*BlendingFactorSrc.One*/ 1, /*BlendingFactorDest.One*/ 1, /*BlendingFactorSrc.Zero*/ 0, /*BlendingFactorDest.One*/ 1);
-                    break;
+                    case BlendModeType.Add:
+                        gl.BlendFuncSeparate(/*BlendingFactorSrc.One*/ 1, /*BlendingFactorDest.One*/ 1, /*BlendingFactorSrc.Zero*/ 0, /*BlendingFactorDest.One*/ 1);
+                        break;
 
-                case BlendModeType.Multiply:
-                    gl.BlendFuncSeparate(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA, /*BlendingFactorSrc.Zero*/ 0, /*BlendingFactorDest.One*/ 1);
-                    break;
+                    case BlendModeType.Multiply:
+                        gl.BlendFuncSeparate(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA, /*BlendingFactorSrc.Zero*/ 0, /*BlendingFactorDest.One*/ 1);
+                        break;
                 }
             }
         }
@@ -139,7 +139,7 @@ namespace Avalonia.Cubism.Render
 
 
             gl.FrontFace(GL_CCW);
-            
+
             gl.Disable(GL_SCISSOR_TEST);
             gl.Disable(GL_STENCIL_TEST);
             gl.Disable(GL_DEPTH_TEST);
@@ -189,7 +189,7 @@ namespace Avalonia.Cubism.Render
             gl.BindBuffer(GL_ARRAY_BUFFER, m_maskVertexBuf);
             fixed (float* ptr = vertex_buffer)
                 gl.BufferData(GL_ARRAY_BUFFER, (IntPtr)(sizeof(float) * vertex_buffer.Length), (IntPtr)ptr, GL_STATIC_DRAW);
-            gl.VertexAttribPointer(shader.AttributePositionLocation, 2, GL_FLOAT, 0, sizeof(float)*2, IntPtr.Zero);
+            gl.VertexAttribPointer(shader.AttributePositionLocation, 2, GL_FLOAT, 0, sizeof(float) * 2, IntPtr.Zero);
 
             gl.EnableVertexAttribArray(shader.AttributeTexCoordLocation);
             gl.BindBuffer(GL_ARRAY_BUFFER, m_maskUvBuf);
@@ -228,7 +228,7 @@ namespace Avalonia.Cubism.Render
             gl.BindBuffer(GL_ARRAY_BUFFER, m_meshVertexBuf);
             fixed (float* ptr = vertex_buffer)
                 gl.BufferData(GL_ARRAY_BUFFER, (IntPtr)(sizeof(float) * vertex_buffer.Length), (IntPtr)ptr, GL_STATIC_DRAW);
-            gl.VertexAttribPointer(shader.AttributePositionLocation, 2, GL_FLOAT, 0, sizeof(float)*2, IntPtr.Zero);
+            gl.VertexAttribPointer(shader.AttributePositionLocation, 2, GL_FLOAT, 0, sizeof(float) * 2, IntPtr.Zero);
 
             gl.EnableVertexAttribArray(shader.AttributeTexCoordLocation);
             gl.BindBuffer(GL_ARRAY_BUFFER, m_meshUvBuf);
@@ -258,7 +258,7 @@ namespace Avalonia.Cubism.Render
             gl.BindTexture(GL_TEXTURE_2D, texture.TextureId);
             gl.Uniform1i(shader.SamplerTexture0Location, 0);
 
-            fixed(Matrix4x4* pmvp = &MvpMatrix) 
+            fixed (Matrix4x4* pmvp = &MvpMatrix)
             {
                 gl.UniformMatrix4fv(shader.UniformMatrixLocation, 1, false, (float*)pmvp);
             }

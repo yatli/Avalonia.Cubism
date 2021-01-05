@@ -20,6 +20,6 @@ namespace AvaloniaLive2DTest
                 .UsePlatformDetect()
                 .LogToTrace()
                 .UseReactiveUI()
-                .With(new Win32PlatformOptions { UseWgl = true });
+                .With(new Win32PlatformOptions { UseWgl = true, UseDeferredRendering = false });
     }
 }
