@@ -1,0 +1,34 @@
+name: .NET
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.301
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore -c Release
+    - name: Pack
+      run: dotnet pack -c Release
+    - name: Upload built nuget package
+      uses: actions/upload-artifact@v2.2.2
+      with:
+        name: nuget_pkg
+        path: Avalonia.Cubism\bin\x64\Release\Avalonia.Cubism.0.0.1-rc.nupkg 
+        if-no-files-found: error
+        # Duration after which artifact will expire in days. 0 means using default retention.
+    Minimum 1 day. Maximum 90 days unless changed from the repository settings page.
+        retention-days: 0
