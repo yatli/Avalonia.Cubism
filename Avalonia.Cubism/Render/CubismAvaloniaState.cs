@@ -84,7 +84,7 @@ namespace Avalonia.Cubism.Render
             
             gl.FrontFace(LastFrontFace);
 
-            static byte b2b(int v) => (v != 0) ? 1 : 0;
+            static byte b2b(int v) => (byte)((v != 0) ? 1 : 0);
 
             gl.ColorMask(b2b(LastColorMask[0]), b2b(LastColorMask[1]), b2b(LastColorMask[2]), b2b(LastColorMask[3]));
 

@@ -10,7 +10,7 @@ namespace Avalonia.Cubism
     {
         public static double[] PartGroupSwitch(this CubismModel model, string group, string id)
         {
-            List<double> opacities = new();
+            List<double> opacities = new List<double>();
             int pcount = model.PartCount;
             for (int i = 0; i < pcount; ++i)
             {
