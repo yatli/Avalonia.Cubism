@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30711.63
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestForms", "TestForms\TestForms.csproj", "{0FB927BC-81F4-4730-AD41-A721C9598E27}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvaloniaLive2DTest", "AvaloniaLive2DTest\AvaloniaLive2DTest.csproj", "{29541CCF-C682-4F83-BA83-24BB1D00F0DF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Avalonia.Cubism", "Avalonia.Cubism\Avalonia.Cubism.csproj", "{4CA16818-9818-42B3-8BAC-04433685A61C}"
@@ -12,19 +10,17 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		DebugDemo|Any CPU = DebugDemo|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0FB927BC-81F4-4730-AD41-A721C9598E27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0FB927BC-81F4-4730-AD41-A721C9598E27}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0FB927BC-81F4-4730-AD41-A721C9598E27}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0FB927BC-81F4-4730-AD41-A721C9598E27}.Release|Any CPU.Build.0 = Release|Any CPU
 		{29541CCF-C682-4F83-BA83-24BB1D00F0DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{29541CCF-C682-4F83-BA83-24BB1D00F0DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29541CCF-C682-4F83-BA83-24BB1D00F0DF}.DebugDemo|Any CPU.ActiveCfg = Debug|Any CPU
+		{29541CCF-C682-4F83-BA83-24BB1D00F0DF}.DebugDemo|Any CPU.Build.0 = Debug|Any CPU
 		{29541CCF-C682-4F83-BA83-24BB1D00F0DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{29541CCF-C682-4F83-BA83-24BB1D00F0DF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4CA16818-9818-42B3-8BAC-04433685A61C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4CA16818-9818-42B3-8BAC-04433685A61C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CA16818-9818-42B3-8BAC-04433685A61C}.DebugDemo|Any CPU.ActiveCfg = Debug|Any CPU
 		{4CA16818-9818-42B3-8BAC-04433685A61C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4CA16818-9818-42B3-8BAC-04433685A61C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
