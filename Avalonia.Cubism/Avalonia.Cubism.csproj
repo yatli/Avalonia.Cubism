@@ -28,28 +28,28 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="../dll/windows/x86_64/Live2DCubismCore.dll">
+    <Content Include="lib/windows/x86_64/Live2DCubismCore.dll">
       <PackagePath>runtimes/win-x64/native</PackagePath>
     </Content>
-    <Content Include="../dll/windows/x86_64/Live2DCubismCore.lib">
+    <Content Include="lib/windows/x86_64/Live2DCubismCore.lib">
       <PackagePath>runtimes/win-x64/native</PackagePath>
     </Content>
 
-    <Content Include="../dll/windows/x86/Live2DCubismCore.dll">
+    <Content Include="lib/windows/x86/Live2DCubismCore.dll">
       <PackagePath>runtimes/win-x86/native</PackagePath>
     </Content>
-    <Content Include="../dll/windows/x86/Live2DCubismCore.lib">
+    <Content Include="lib/windows/x86/Live2DCubismCore.lib">
       <PackagePath>runtimes/win-x86/native</PackagePath>
     </Content>
 
-    <Content Include="../dll/linux/x86_64/libLive2DCubismCore.so">
+    <Content Include="lib/linux/x86_64/libLive2DCubismCore.so">
       <PackagePath>runtimes/linux-x64/native</PackagePath>
     </Content>
 
-    <Content Include="../dll/macos/libLive2DCubismCore.dylib">
+    <Content Include="lib/macos/libLive2DCubismCore.dylib">
       <PackagePath>runtimes/osx-x64/native</PackagePath>
     </Content>
-    <Content Include="../dll/macos/Live2DCubismCore.bundle">
+    <Content Include="lib/macos/Live2DCubismCore.bundle">
       <PackagePath>runtimes/osx-x64/native</PackagePath>
     </Content>
   </ItemGroup>
