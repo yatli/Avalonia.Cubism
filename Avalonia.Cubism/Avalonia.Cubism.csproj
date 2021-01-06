@@ -3,16 +3,24 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <PlatformTarget>x64</PlatformTarget>
-    <AssemblyName>Avalonia.Cubism</AssemblyName>
+    <Platform>x64</Platform>
     <LangVersion>9.0</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  <PropertyGroup>
+    <AssemblyName>Avalonia.Cubism</AssemblyName>
+    <Authors>Yatao Li</Authors>
+    <Copyright>Yatao Li</Copyright>
+    <Description>Live2D control for Avalonia.</Description>
+    <PackageIcon>avalonia-logo.jpg</PackageIcon>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/yatli/Avalonia.Cubism</PackageProjectUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageTags>Live2D, Avalonia</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/yatli/Avalonia.Cubism</RepositoryUrl>
+    <Version>0.0.1-rc</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -42,6 +50,17 @@
       <PackagePath>runtimes\osx-x64\native</PackagePath>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\avalonia-logo.jpg">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
