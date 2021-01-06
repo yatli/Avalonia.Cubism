@@ -29,6 +29,3 @@ jobs:
         name: nuget_pkg
         path: Avalonia.Cubism\bin\x64\Release\Avalonia.Cubism.0.0.1-rc.nupkg 
         if-no-files-found: error
-        # Duration after which artifact will expire in days. 0 means using default retention.
-    Minimum 1 day. Maximum 90 days unless changed from the repository settings page.
-        retention-days: 0
