@@ -27,8 +27,10 @@ namespace AvaloniaLive2DTest.Views
             // see: http://sites.cybernoids.jp/cubism_e/modeler/models/multi-arms/change-arms
             var asset =
             //new CubismAsset(@"avares://AvaloniaLive2DTest/Assets/Live2D/hiyori_free_t06.model3.json");
-            new CubismAsset(@"C:\Users\Yatao\Downloads\TouhouCannonballDump\Live2D\Alice\object_live2d_014_101.asset\object_live2d_014_101.asset.model3.json");
+            //new CubismAsset(@"C:\Users\Yatao\Downloads\TouhouCannonballDump\Live2D\Alice\object_live2d_014_101.asset\object_live2d_014_101.asset.model3.json");
             //new CubismAsset(@"C:\Users\Yatao\Downloads\TouhouCannonballDump\Live2D\Reimu\object_live2d_001_101.asset\object_live2d_001_101.asset.model3.json");
+            //new CubismAsset(@"C:\Users\Yatao\Downloads\TouhouCannonballDump\Live2D\Marisa\object_live2d_002_101.asset\object_live2d_002_101.asset.model3.json");
+            new CubismAsset(@"C:\Users\Yatao\Downloads\TouhouCannonballDump\Live2D\Eiki\object_live2d_036_101.asset\object_live2d_036_101.asset.model3.json");
 
             // for RIM
             //asset.Model.PartGroupSwitch("PARTS_LEFT_HAND", "02");
